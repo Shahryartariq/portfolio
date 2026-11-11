@@ -9,7 +9,7 @@ test.describe("home", () => {
     await page.goto("/");
 
     await expect(page.getByRole("heading", { level: 1 })).toHaveText("Muhammad Shehryar Tariq");
-    await expect(page.getByTestId("tip-hash")).toContainText("0000");
+    await expect(page.locator(".hero-now")).toContainText("Full Stack Developer at VisionTech");
     await expect(page.getByRole("tab")).toHaveCount(8);
     await expect(page.getByTestId("pending-block")).toHaveCount(0);
     await expect(page.locator("[data-testid^=status-]")).toHaveCount(7);
@@ -20,10 +20,10 @@ test.describe("home", () => {
     expect(errors).toEqual([]);
   });
 
-  test("verifies the chain in the browser", async ({ page }) => {
+  test("verifies the experience timeline in the browser", async ({ page }) => {
     await page.goto("/");
-    await page.getByRole("button", { name: "Verify the chain" }).click();
-    await expect(page.locator(".verify-result")).toContainText("Valid. Your browser rehashed all 8 blocks");
+    await page.getByRole("button", { name: "Check it in your browser" }).click();
+    await expect(page.locator(".verify-result")).toContainText("Intact. Your browser rehashed all 8 steps");
     await expect(page.locator(".link[data-check=ok]")).toHaveCount(7);
   });
 
@@ -47,19 +47,20 @@ test.describe("home", () => {
   test("mines a visitor's message and builds the email", async ({ page }) => {
     test.setTimeout(90_000);
     await page.goto("/");
-    await page.getByRole("button", { name: "Mine and send" }).click();
+    await page.getByRole("button", { name: "Do the work and send" }).click();
     await expect(page.locator(".field-error")).toHaveText("Add your name so I know who the block is from.");
     await page.getByLabel("Your name").fill("Ayesha from Acme");
     await page.getByLabel("Message").fill("We'd like to talk about a Rust role.");
-    await page.getByRole("button", { name: "Mine and send" }).click();
+    await page.getByRole("button", { name: "Do the work and send" }).click();
     const done = page.getByTestId("mined");
     await expect(done).toBeVisible({ timeout: 60_000 });
-    await expect(done).toContainText("Block #8 mined");
+    await expect(done).toContainText("Proof of work done");
+    await expect(done).toContainText("step #8");
     const href = await done.getByRole("link", { name: "Send it by email" }).getAttribute("href");
-    expect(href).toMatch(/^mailto:shahryartariq57@gmail\.com\?subject=Block%20%238%20from%20Ayesha%20from%20Acme&body=/);
+    expect(href).toMatch(/^mailto:shahryartariq57@gmail\.com\?subject=Message%20from%20Ayesha%20from%20Acme&body=/);
     expect(decodeURIComponent(href!)).toMatch(/hash {3}0000[0-9a-f]{60}/);
     await done.getByRole("button", { name: "Write another" }).click();
-    await expect(page.getByRole("button", { name: "Mine and send" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Do the work and send" })).toBeVisible();
   });
 
   test("has no internal links to client systems", async ({ page }) => {
@@ -83,6 +84,27 @@ test.describe("home", () => {
         }),
     );
     expect(shift).toBeLessThan(0.01);
+  });
+
+  test("the 3D object follows the area in view", async ({ page }) => {
+    await page.goto("/");
+    const stage = page.locator(".stage3d");
+    await expect(stage).toHaveAttribute("data-shape", "core");
+    for (const id of ["fullstack", "ai", "blockchain", "security"]) {
+      await page.evaluate((id) => {
+        const el = document.getElementById(id)!;
+        const line = window.innerWidth <= 860 ? 0.64 : 0.5;
+        window.scrollTo(0, el.getBoundingClientRect().top + scrollY - innerHeight * line + 40);
+      }, id);
+      await expect(stage).toHaveAttribute("data-shape", id);
+      await expect(page.locator(`.stage-dots a[data-area=${id}]`)).toHaveAttribute("aria-current", "step");
+    }
+  });
+
+  test("projects are tagged by area", async ({ page }) => {
+    await page.goto("/");
+    const satscope = page.locator("article", { has: page.getByRole("heading", { name: "Satscope" }) });
+    await expect(satscope.locator(".areas li")).toHaveText(["Blockchain", "Security", "Full-stack"]);
   });
 
   test("does not scroll sideways", async ({ page }) => {

@@ -2,11 +2,12 @@ import { CommandPalette, type PaletteItem } from "@/components/CommandPalette";
 import { CopyEmail } from "@/components/CopyEmail";
 import { Hash } from "@/components/Hash";
 import { Header, SECTIONS } from "@/components/Header";
-import { MiningHash } from "@/components/MiningHash";
 import { BlockExplorer } from "@/components/BlockExplorer";
+import { Disciplines } from "@/components/Disciplines";
 import { HashName } from "@/components/HashName";
 import { MineMessage } from "@/components/MineMessage";
 import { clients } from "@/data/clients";
+import { AREA_LABEL } from "@/data/disciplines";
 import { projects, type Project } from "@/data/projects";
 import { about, profile } from "@/data/profile";
 import { getChain } from "@/lib/chain";
@@ -32,6 +33,18 @@ function StatusBadge({ status }: { status?: SiteStatus }) {
       <span className="dot" data-state={status.state} aria-hidden="true" />
       {text}
     </span>
+  );
+}
+
+function Areas({ areas }: { areas: Project["areas"] }) {
+  return (
+    <ul className="areas" aria-label="Areas">
+      {areas.map((a) => (
+        <li key={a} data-area={a}>
+          {AREA_LABEL[a]}
+        </li>
+      ))}
+    </ul>
   );
 }
 
@@ -168,71 +181,40 @@ export default async function Home() {
       <main id="main">
         <section className="hero wrap" id="top" aria-labelledby="name">
           <HashName name={profile.name} />
-          <div className="hero-grid">
-            <div>
-              <p className="hero-role">Full-stack engineer in Islamabad, working in TypeScript and Rust.</p>
-              <p className="hero-lede">{profile.lede}</p>
-              <p className="actions">
-                <a className="btn btn-primary" href={`mailto:${profile.email}`}>
-                  Email me
-                </a>
-                <a className="btn" href={profile.links.github} target="_blank" rel="noopener me">
-                  GitHub
-                </a>
-                <a className="btn" href={profile.links.linkedin} target="_blank" rel="noopener me">
-                  LinkedIn
-                </a>
-              </p>
-            </div>
-            <aside className="tip" aria-label="Latest state of the career chain">
-              <p className="tip-head">
-                <span>Chain tip</span>
-                <span>Mined when this site was built</span>
-              </p>
-              <dl>
-                <dt>Height</dt>
-                <dd>
-                  {tip.height} <span className="dim">({blocks.length} blocks)</span>
-                </dd>
-                <dt>Latest</dt>
-                <dd>
-                  {tip.org}, {tip.title}
-                </dd>
-                <dt>Hash</dt>
-                <dd data-testid="tip-hash">
-                  <MiningHash value={tip.hash} />
-                </dd>
-                <dt>Live</dt>
-                <dd>
-                  <span className="status">
-                    <span className="dot" data-state={up === projects.length ? "up" : "slow"} aria-hidden="true" />
-                    {up} of {projects.length} projects up
-                  </span>
-                </dd>
-                {pending.length > 0 && (
-                  <>
-                    <dt>Pending</dt>
-                    <dd>{pending.length === 1 ? "1 block waiting" : `${pending.length} blocks waiting`}</dd>
-                  </>
-                )}
-              </dl>
-              <p className="tip-foot links">
-                <a href="#chain">See every block</a>
-              </p>
-            </aside>
-          </div>
+          <Disciplines
+            intro={
+              <>
+                <p className="hero-role">
+                  Full-stack engineer working across AI, blockchain and security.
+                </p>
+                <p className="hero-lede">{profile.lede}</p>
+                <p className="actions">
+                  <a className="btn btn-primary" href={`mailto:${profile.email}`}>
+                    Email me
+                  </a>
+                  <a className="btn" href={profile.links.github} target="_blank" rel="noopener me">
+                    GitHub
+                  </a>
+                  <a className="btn" href={profile.links.linkedin} target="_blank" rel="noopener me">
+                    LinkedIn
+                  </a>
+                </p>
+                <p className="hero-now dim">
+                  Now: {tip.title} at {tip.org}, Islamabad. {up} of {projects.length} of my projects are live right now.
+                </p>
+              </>
+            }
+          />
         </section>
 
-        <section className="section" id="chain" aria-labelledby="chain-title">
+        <section className="section" id="experience" aria-labelledby="chain-title">
           <div className="wrap">
             <div className="section-head">
               <h2 className="section-title" id="chain-title">
-                Career, block by block
+                Experience
               </h2>
               <p className="section-note">
-                Each step of my career is a block, mined with real proof of work when this site is built. Every hash
-                starts with four zeros and includes the hash of the block before it, so editing an old entry would break
-                every block after it. Check it yourself.
+                From my first degree to my current job, oldest on the left. Pick a step to see what I worked on there.
               </p>
             </div>
             <BlockExplorer blocks={blocks} pending={pending} />
@@ -247,8 +229,8 @@ export default async function Home() {
               </h2>
               <div>
                 <p className="section-note">
-                  Seven products I designed, built and deployed myself. Each has tests, CI and a public repo. The status
-                  next to each one is checked by this site&rsquo;s server every five minutes.
+                  Seven products I designed, built and deployed myself, across all four areas. Each has tests, CI and a
+                  public repo. The status next to each one is checked by this site&rsquo;s server every five minutes.
                 </p>
                 {checkedAt && (
                   <p className="status-line">
@@ -265,7 +247,10 @@ export default async function Home() {
             <div className="featured">
               {featured.map((p) => (
                 <article className="feature" key={p.slug} aria-labelledby={`p-${p.slug}`}>
-                  <StatusBadge status={statuses[p.slug]} />
+                  <div className="feature-top">
+                    <StatusBadge status={statuses[p.slug]} />
+                    <Areas areas={p.areas} />
+                  </div>
                   <h3 className="feature-name" id={`p-${p.slug}`}>
                     {p.name}
                   </h3>
@@ -291,6 +276,7 @@ export default async function Home() {
                   </h3>
                   <StatusBadge status={statuses[p.slug]} />
                   <p className="row-pitch">{p.pitch}</p>
+                  <Areas areas={p.areas} />
                   <ProjectLinks p={p} />
                 </article>
               ))}

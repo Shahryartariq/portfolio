@@ -3,8 +3,9 @@ import { SearchButton } from "./SearchButton";
 import { ThemeToggle } from "./ThemeToggle";
 
 export const SECTIONS = [
-  { id: "chain", label: "Career" },
+  { id: "fullstack", label: "What I do" },
   { id: "projects", label: "Projects" },
+  { id: "experience", label: "Experience" },
   { id: "clients", label: "Client work" },
   { id: "about", label: "About" },
   { id: "contact", label: "Contact" },

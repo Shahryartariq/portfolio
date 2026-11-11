@@ -67,7 +67,7 @@ describe("message block", () => {
     const { mailto, messagePayload } = await import("@/lib/mine-message");
     const block = { height: 7, prev: "0000ab", from: "Ayesha", email: "a@acme.io", message: "Hi & bye", time: "2026-11-11T08:00:00.000Z" };
     const url = mailto("me@x.com", block, 42, "0000ff");
-    expect(url.startsWith("mailto:me@x.com?subject=Block%20%237%20from%20Ayesha&body=")).toBe(true);
+    expect(url.startsWith("mailto:me@x.com?subject=Message%20from%20Ayesha&body=")).toBe(true);
     const body = decodeURIComponent(url.split("&body=")[1]);
     expect(body).toContain("Hi & bye");
     expect(body).toContain("nonce  42");

@@ -12,6 +12,10 @@
   --slow: #f4bd55;
   --down: #ff8080;
   --shadow: 0 1px 0 rgb(255 255 255 / 0.04) inset;
+  --a-fullstack: #7fb0ff;
+  --a-ai: #c9a2ff;
+  --a-blockchain: #f6c065;
+  --a-security: #55e0c6;
 
   --sans: var(--font-mona), "Mona Sans", system-ui, sans-serif;
   --mono: var(--font-geist-mono), ui-monospace, "SFMono-Regular", monospace;
@@ -42,6 +46,10 @@
     --slow: #9a5c00;
     --down: #c2312f;
     --shadow: 0 1px 2px rgb(10 26 47 / 0.06);
+    --a-fullstack: #1650b8;
+    --a-ai: #6630b8;
+    --a-blockchain: #7d4c00;
+    --a-security: #076457;
     color-scheme: light;
   }
 }
@@ -59,7 +67,11 @@
   --slow: #9a5c00;
   --down: #c2312f;
   --shadow: 0 1px 2px rgb(10 26 47 / 0.06);
-  color-scheme: light;
+  --a-fullstack: #1650b8;
+    --a-ai: #6630b8;
+    --a-blockchain: #7d4c00;
+    --a-security: #076457;
+    color-scheme: light;
 }
 
 /* ───────── Base ───────── */
@@ -389,6 +401,239 @@ kbd {
 
 .tip-foot {
   padding: 0 1.1rem 1.1rem;
+}
+
+/* ───────── Stage: intro + four areas with the 3D object ───────── */
+.hero {
+  padding-block: clamp(1.5rem, 4vw, 3rem) 0;
+}
+
+.stage {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+  gap: 0 clamp(2rem, 5vw, 4.5rem);
+  margin-top: clamp(1.5rem, 3vw, 2.5rem);
+}
+
+.stage-text {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+/* Sticks in the middle of the screen; short enough to fit next to the intro on load. */
+.stage-visual {
+  --h: min(calc(100svh - 6rem), 34rem);
+  grid-column: 2;
+  grid-row: 1;
+  align-self: start;
+  position: sticky;
+  top: max(4.5rem, calc(50svh - var(--h) / 2 + 2rem));
+  height: var(--h);
+  display: flex;
+  flex-direction: column;
+}
+
+.stage-step {
+  min-height: 78svh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-block: 3rem;
+}
+
+.stage-intro {
+  min-height: 60svh;
+  justify-content: flex-start;
+  padding-top: 0.5rem;
+}
+
+.hero-now {
+  margin-top: 1.75rem;
+  font-size: 0.9375rem;
+}
+
+.stage3d {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+}
+
+.stage3d-canvas,
+.stage3d-glow {
+  position: absolute;
+  inset: 0;
+}
+
+.stage3d-canvas canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* Shown until three.js is ready, and instead of it when WebGL isn't available. */
+.stage3d-glow {
+  pointer-events: none;
+  background: radial-gradient(closest-side, color-mix(in srgb, var(--area, var(--accent)) 28%, transparent), transparent 72%);
+  opacity: 1;
+  transition: opacity 0.6s, background 0.8s;
+  margin: 15%;
+}
+
+.stage3d[data-ready] .stage3d-glow {
+  opacity: 0.35;
+}
+
+.stage3d[data-shape="fullstack"] { --area: var(--a-fullstack); }
+.stage3d[data-shape="ai"] { --area: var(--a-ai); }
+.stage3d[data-shape="blockchain"] { --area: var(--a-blockchain); }
+.stage3d[data-shape="security"] { --area: var(--a-security); }
+
+.stage3d-label {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0.5rem;
+  text-align: center;
+  font-size: var(--step--1);
+  color: var(--dim);
+}
+
+.stage-dots {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.75rem 0 1.25rem;
+}
+
+.stage-dots a {
+  display: inline-block;
+  padding: 0.3rem 0.7rem;
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  font-size: 0.8125rem;
+  color: var(--dim);
+  text-decoration: none;
+  transition: color 0.2s, border-color 0.2s, background 0.2s;
+}
+
+.stage-dots a:hover {
+  color: var(--ink);
+}
+
+.stage-dots a[aria-current="step"] {
+  color: var(--accent-ink);
+  background: var(--c);
+  border-color: var(--c);
+}
+
+[data-area="fullstack"] { --c: var(--a-fullstack); }
+[data-area="ai"] { --c: var(--a-ai); }
+[data-area="blockchain"] { --c: var(--a-blockchain); }
+[data-area="security"] { --c: var(--a-security); }
+
+.area-title {
+  font-size: var(--step-3);
+  font-weight: 780;
+  font-stretch: 120%;
+  line-height: 1;
+  letter-spacing: -0.025em;
+  color: var(--c);
+}
+
+.area-line {
+  margin-top: 1rem;
+  font-size: var(--step-1);
+  line-height: 1.4;
+  max-width: 30rem;
+}
+
+.area-proof {
+  margin-top: 1.5rem;
+  display: grid;
+  gap: 0.65rem;
+  max-width: 34rem;
+}
+
+.area-proof li {
+  position: relative;
+  padding-left: 1.1rem;
+  color: var(--dim);
+}
+
+.area-proof li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.62em;
+  width: 0.4rem;
+  height: 0.4rem;
+  background: var(--c);
+  rotate: 45deg;
+}
+
+.area-proof a {
+  color: var(--ink);
+  text-decoration-color: color-mix(in srgb, var(--c) 70%, transparent);
+}
+
+.area-tools {
+  margin-top: 1.5rem;
+}
+
+.areas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.areas li {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.1rem 0.5rem;
+  border-radius: 999px;
+  color: var(--c);
+  background: color-mix(in srgb, var(--c) 14%, transparent);
+}
+
+.feature-top {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.row .areas {
+  grid-column: 1 / -1;
+}
+
+@media (max-width: 860px) {
+  .stage {
+    grid-template-columns: 1fr;
+  }
+  .stage-visual {
+    --h: 40svh;
+    grid-column: 1;
+    top: 4rem;
+    z-index: 1;
+    background: var(--night);
+    box-shadow: 0 1.25rem 1.25rem -0.5rem var(--night);
+  }
+  .stage-text {
+    grid-row: 2;
+  }
+  .stage-step {
+    min-height: 70svh;
+    padding-block: 2rem;
+  }
+  .stage-intro {
+    min-height: 0;
+    padding-bottom: 3rem;
+  }
+  .stage-dots {
+    padding-bottom: 0.5rem;
+  }
 }
 
 /* ───────── Sections ───────── */
@@ -769,6 +1014,35 @@ div.slot-btn {
 
 .block-proof dd {
   overflow-wrap: anywhere;
+}
+
+.integrity {
+  margin-top: 1.5rem;
+  display: grid;
+  gap: 0.85rem;
+  max-width: 46rem;
+}
+
+.integrity-text {
+  color: var(--dim);
+  font-size: 0.9375rem;
+}
+
+.block-proof-wrap summary {
+  cursor: pointer;
+  padding: 0.65rem clamp(1.1rem, 2.6vw, 1.75rem);
+  border-top: 1px dashed var(--rule);
+  color: var(--dim);
+  font-size: var(--step--1);
+}
+
+.block-proof-wrap summary:hover {
+  color: var(--ink);
+}
+
+.block-proof-wrap .block-proof {
+  border-top: 0;
+  padding-top: 0;
 }
 
 /* ───────── Hash name ───────── */

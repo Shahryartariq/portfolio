@@ -1,3 +1,5 @@
+import type { Area } from "./disciplines";
+
 export type Project = {
   slug: string;
   name: string;
@@ -8,6 +10,7 @@ export type Project = {
   /** What is technically interesting about it. */
   detail: string;
   stack: string[];
+  areas: Area[];
   year: number;
   featured?: boolean;
 };
@@ -21,6 +24,7 @@ export const projects: Project[] = [
     pitch: "A checkup for Bitcoin wallets: finds inscriptions and Runes at risk of being spent by accident, then fixes them in one signed transaction.",
     detail: "Builds PSBTs for Taproot and SegWit wallets, checks the signed result input by input, and proves address ownership with BIP-322.",
     stack: ["Next.js", "TypeScript", "bitcoinjs", "LaserEyes"],
+    areas: ["blockchain", "security", "fullstack"],
     year: 2026,
     featured: true,
   },
@@ -32,6 +36,7 @@ export const projects: Project[] = [
     pitch: "Auth you can drop into a new Next.js app: email and password, Google and GitHub, two-factor, passkeys, roles and an admin panel.",
     detail: "Better Auth with Drizzle or Prisma picked at setup, rate limits stored in Postgres, and 33 browser tests run in CI.",
     stack: ["Next.js", "Better Auth", "PostgreSQL", "Playwright"],
+    areas: ["security", "fullstack"],
     year: 2026,
     featured: true,
   },
@@ -43,6 +48,7 @@ export const projects: Project[] = [
     pitch: "Crypto news from 38 sources, sorted by network, with live prices and a clean reader view.",
     detail: "Detects 22 networks in headlines, including the ambiguous ones like Base and NEAR.",
     stack: ["Next.js", "RSS", "CoinGecko"],
+    areas: ["blockchain", "fullstack"],
     year: 2026,
   },
   {
@@ -53,6 +59,7 @@ export const projects: Project[] = [
     pitch: "AI news from labs, press and builders, with repeat stories grouped into one.",
     detail: "Official lab posts are labelled, and full posts open in a reader view when the feed allows it.",
     stack: ["Next.js", "RSS", "Vitest"],
+    areas: ["ai", "fullstack"],
     year: 2026,
   },
   {
@@ -63,6 +70,7 @@ export const projects: Project[] = [
     pitch: "How long a YouTube playlist takes at any speed, and the slowest speed that fits the time you have.",
     detail: "Twelve languages including Urdu and Arabic, streaming results for playlists up to 5,000 videos.",
     stack: ["Next.js", "YouTube API", "i18n"],
+    areas: ["fullstack"],
     year: 2026,
   },
   {
@@ -73,6 +81,7 @@ export const projects: Project[] = [
     pitch: "Weather and air quality for Pakistani cities, fast on a slow phone.",
     detail: "Server-side API key, city pages for search, Lighthouse 100 on desktop.",
     stack: ["Next.js", "OpenWeather"],
+    areas: ["fullstack"],
     year: 2026,
   },
   {
@@ -83,6 +92,7 @@ export const projects: Project[] = [
     pitch: "Cleans pasted text: broken PDF line breaks, extra spaces, duplicates. Runs in the browser, nothing uploaded.",
     detail: "Stateless Django with a strict content security policy and no cookies.",
     stack: ["Django", "JavaScript"],
+    areas: ["ai", "fullstack"],
     year: 2026,
   },
 ];
