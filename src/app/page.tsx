@@ -138,7 +138,9 @@ export default async function Home() {
                   {tip.height} <span className="dim">({blocks.length} blocks)</span>
                 </dd>
                 <dt>Latest</dt>
-                <dd>{tip.title}</dd>
+                <dd>
+                  {tip.org}, {tip.title}
+                </dd>
                 <dt>Hash</dt>
                 <dd data-testid="tip-hash">
                   <MiningHash value={tip.hash} />

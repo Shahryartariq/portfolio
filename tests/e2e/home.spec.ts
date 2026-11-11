@@ -10,8 +10,8 @@ test.describe("home", () => {
 
     await expect(page.getByRole("heading", { level: 1 })).toHaveText("Muhammad Shehryar Tariq");
     await expect(page.getByTestId("tip-hash")).toContainText("0000");
-    await expect(page.getByRole("tab")).toHaveCount(7);
-    await expect(page.getByTestId("pending-block")).toBeVisible();
+    await expect(page.getByRole("tab")).toHaveCount(8);
+    await expect(page.getByTestId("pending-block")).toHaveCount(0);
     await expect(page.locator("[data-testid^=status-]")).toHaveCount(7);
     await expect(page.getByRole("link", { name: "shahryartariq57@gmail.com" })).toHaveAttribute(
       "href",
@@ -23,14 +23,16 @@ test.describe("home", () => {
   test("verifies the chain in the browser", async ({ page }) => {
     await page.goto("/");
     await page.getByRole("button", { name: "Verify the chain" }).click();
-    await expect(page.locator(".verify-result")).toContainText("Valid. Your browser rehashed all 7 blocks");
-    await expect(page.locator(".link[data-check=ok]")).toHaveCount(6);
+    await expect(page.locator(".verify-result")).toContainText("Valid. Your browser rehashed all 8 blocks");
+    await expect(page.locator(".link[data-check=ok]")).toHaveCount(7);
   });
 
   test("explorer opens on the newest block and switches with clicks and arrow keys", async ({ page }) => {
     await page.goto("/");
     const panel = page.getByRole("tabpanel");
-    await expect(page.getByRole("tab", { selected: true })).toContainText("Own work");
+    await expect(page.getByRole("tab", { selected: true })).toContainText("VisionTech");
+    await expect(panel).toContainText("Feb 2026 to now");
+    await page.getByRole("tab", { name: /Own work/ }).click();
     await expect(panel.getByRole("link", { name: "Satscope" })).toBeVisible();
     await page.getByRole("tab", { name: /AmeeqCode/ }).click();
     await expect(panel).toContainText("LC Management");
@@ -52,9 +54,9 @@ test.describe("home", () => {
     await page.getByRole("button", { name: "Mine and send" }).click();
     const done = page.getByTestId("mined");
     await expect(done).toBeVisible({ timeout: 60_000 });
-    await expect(done).toContainText("Block #7 mined");
+    await expect(done).toContainText("Block #8 mined");
     const href = await done.getByRole("link", { name: "Send it by email" }).getAttribute("href");
-    expect(href).toMatch(/^mailto:shahryartariq57@gmail\.com\?subject=Block%20%237%20from%20Ayesha%20from%20Acme&body=/);
+    expect(href).toMatch(/^mailto:shahryartariq57@gmail\.com\?subject=Block%20%238%20from%20Ayesha%20from%20Acme&body=/);
     expect(decodeURIComponent(href!)).toMatch(/hash {3}0000[0-9a-f]{60}/);
     await done.getByRole("button", { name: "Write another" }).click();
     await expect(page.getByRole("button", { name: "Mine and send" })).toBeVisible();
