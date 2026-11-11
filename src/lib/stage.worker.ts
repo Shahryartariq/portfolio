@@ -8,7 +8,11 @@ export type StageIn =
   | { type: "resize"; width: number; height: number; dpr: number }
   | { type: "tilt"; x: number; y: number }
   | { type: "theme"; light: boolean }
-  | { type: "visible"; visible: boolean };
+  | { type: "visible"; visible: boolean }
+  | { type: "pointer"; x: number | null; y?: number }
+  | { type: "drag"; dx: number; dy: number }
+  | { type: "release" }
+  | { type: "burst" };
 
 let engine: Engine | null = null;
 let pendingShape: ShapeId | null = null;
@@ -34,4 +38,8 @@ self.onmessage = (e: MessageEvent<StageIn>) => {
   else if (m.type === "tilt") engine.tilt(m.x, m.y);
   else if (m.type === "theme") engine.theme(m.light);
   else if (m.type === "visible") engine.visible(m.visible);
+  else if (m.type === "pointer") engine.pointer(m.x, m.y);
+  else if (m.type === "drag") engine.drag(m.dx, m.dy);
+  else if (m.type === "release") engine.release();
+  else if (m.type === "burst") engine.burst();
 };

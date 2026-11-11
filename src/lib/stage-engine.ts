@@ -23,6 +23,14 @@ export type EngineOptions = {
 
 export type Engine = {
   setShape(id: ShapeId): void;
+  /** Pointer over the object, in normalised device coordinates (-1..1), or null when it leaves. */
+  pointer(x: number | null, y?: number): void;
+  /** Rotate by a drag, in radians. */
+  drag(dx: number, dy: number): void;
+  /** Let go of a drag; the spin carries on and slows down. */
+  release(): void;
+  /** Scatter the points, then let them pull back together. */
+  burst(): void;
   resize(width: number, height: number, dpr: number): void;
   tilt(x: number, y: number): void;
   theme(light: boolean): void;
@@ -85,30 +93,50 @@ export function createEngine(canvas: HTMLCanvasElement | OffscreenCanvas, o: Eng
       uPixel: { value: Math.min(o.dpr, 2) },
       uTime: { value: 0 },
       uAlpha: { value: 0.9 },
+      uMouse: { value: [9, 9] },
+      uHover: { value: 0 },
+      uAspect: { value: 1 },
     },
     vertexShader: `
       attribute float seed;
       varying vec3 vColor;
       varying float vTwinkle;
+      varying float vGlow;
       uniform float uSize;
       uniform float uPixel;
       uniform float uTime;
+      uniform vec2 uMouse;
+      uniform float uHover;
+      uniform float uAspect;
       void main() {
         vColor = color;
         vTwinkle = 0.65 + 0.35 * sin(uTime * 1.6 + seed * 40.0);
         vec4 mv = modelViewMatrix * vec4(position, 1.0);
         gl_Position = projectionMatrix * mv;
-        gl_PointSize = uSize * uPixel * (0.55 + seed * 0.6) / -mv.z;
+        // Push points away from the pointer, on screen, and light them up.
+        vec2 ndc = gl_Position.xy / gl_Position.w;
+        vec2 d = ndc - uMouse;
+        d.x *= uAspect;
+        float dist = length(d);
+        float f = uHover * smoothstep(0.42, 0.0, dist);
+        vec2 dir = dist > 0.0001 ? d / dist : vec2(0.0);
+        dir.x /= uAspect;
+        ndc += dir * f * (0.16 + seed * 0.08);
+        gl_Position.xy = ndc * gl_Position.w;
+        vGlow = f;
+        gl_PointSize = uSize * uPixel * (0.55 + seed * 0.6) * (1.0 + f * 0.6) / -mv.z;
       }`,
     fragmentShader: `
       varying vec3 vColor;
       varying float vTwinkle;
+      varying float vGlow;
       uniform float uAlpha;
       void main() {
         float d = length(gl_PointCoord - 0.5);
         if (d > 0.5) discard;
         float a = smoothstep(0.5, 0.05, d);
-        gl_FragColor = vec4(vColor, a * uAlpha * vTwinkle);
+        vec3 c = mix(vColor, vec3(1.0), vGlow * 0.45);
+        gl_FragColor = vec4(c, a * uAlpha * max(vTwinkle, vGlow));
       }`,
   });
   group.add(new THREE.Points(geometry, material));
@@ -138,11 +166,16 @@ export function createEngine(canvas: HTMLCanvasElement | OffscreenCanvas, o: Eng
   let dirty = false;
   let isVisible = true;
   const tiltTarget = { x: 0, y: 0 };
+  // Rotation the visitor controls by dragging, with momentum.
+  const rot = { x: 0, y: 0, vx: 0, vy: 0, dragging: false };
+  let hoverTarget = 0;
+  let burst = 0;
 
   const resize = (w: number, h: number, dpr: number) => {
     renderer.setPixelRatio(Math.min(dpr, 2));
     renderer.setSize(Math.max(1, w), Math.max(1, h), false);
     camera.aspect = w / Math.max(1, h);
+    material.uniforms.uAspect.value = camera.aspect;
     camera.position.z = w / h < 0.9 ? 8.6 : 7;
     camera.updateProjectionMatrix();
   };
@@ -156,8 +189,19 @@ export function createEngine(canvas: HTMLCanvasElement | OffscreenCanvas, o: Eng
     const p = o.still ? 1 : Math.min(1, (now - morphStart) / MORPH_MS);
     const e = easeInOut(p);
     const time = (now - t0) / 1000;
-    if (p < 1 || !o.still || dirty) {
+    burst *= 0.93;
+    if (p < 1 || !o.still || dirty || burst > 0.001) {
       for (let i = 0; i < N * 3; i++) positions[i] = from[i] + (to[i] - from[i]) * e;
+      if (burst > 0.001) {
+        // Scatter outwards, further for some points than others, then ease back.
+        const b = burst * burst;
+        for (let i = 0; i < N; i++) {
+          const k = 1 + b * (0.6 + seeds[i] * 2.2);
+          positions[i * 3] *= k;
+          positions[i * 3 + 1] *= k;
+          positions[i * 3 + 2] *= k;
+        }
+      }
       if (!o.still) {
         // A gentle drift so the shape feels alive.
         for (let i = 0; i < N; i++) {
@@ -176,12 +220,21 @@ export function createEngine(canvas: HTMLCanvasElement | OffscreenCanvas, o: Eng
       geometry.attributes.color.needsUpdate = true;
     }
     if (p >= 1) dirty = false;
-    if (!o.still) {
-      spin *= 0.96;
-      group.rotation.y += 0.0032 + spin * 0.05;
-      group.rotation.x += (tiltTarget.x - group.rotation.x) * 0.04;
-      group.rotation.z += (-tiltTarget.y * 0.2 - group.rotation.z) * 0.04;
+    if (!rot.dragging) {
+      rot.vy *= 0.95;
+      rot.vx *= 0.9;
+      rot.y += rot.vy + (o.still ? 0 : 0.0032 + spin * 0.05);
+      rot.x += rot.vx;
+      // Ease the up/down tilt back toward level.
+      rot.x *= 0.97;
     }
+    spin *= 0.96;
+    rot.x = Math.max(-0.9, Math.min(0.9, rot.x));
+    group.rotation.y = rot.y;
+    group.rotation.x += (rot.x + (o.still ? 0 : tiltTarget.x) - group.rotation.x) * 0.15;
+    group.rotation.z += ((o.still ? 0 : -tiltTarget.y * 0.2) - group.rotation.z) * 0.04;
+    const hv = material.uniforms.uHover;
+    hv.value += (hoverTarget - hv.value) * 0.12;
     material.uniforms.uTime.value = o.still ? 0 : time;
     renderer.render(scene, camera);
   };
@@ -200,6 +253,28 @@ export function createEngine(canvas: HTMLCanvasElement | OffscreenCanvas, o: Eng
       morphStart = performance.now();
       spin = o.still ? 0 : 1;
       dirty = true;
+    },
+    pointer(x, y) {
+      if (x === null || y === undefined) {
+        hoverTarget = 0;
+        return;
+      }
+      material.uniforms.uMouse.value = [x, y];
+      hoverTarget = 1;
+    },
+    drag(dx, dy) {
+      rot.dragging = true;
+      rot.y += dx;
+      rot.x += dy;
+      rot.vy = dx;
+      rot.vx = dy * 0.5;
+    },
+    release() {
+      rot.dragging = false;
+      rot.vy = Math.max(-0.12, Math.min(0.12, rot.vy));
+    },
+    burst() {
+      if (!o.still) burst = 1;
     },
     resize,
     tilt(x, y) {

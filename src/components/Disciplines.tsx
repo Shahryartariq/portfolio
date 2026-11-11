@@ -13,18 +13,30 @@ export function Disciplines({ intro }: { intro: ReactNode }) {
   const [active, setActive] = useState(0); // 0 = intro, 1..4 = areas
   const steps = useRef<(HTMLElement | null)[]>([]);
 
+  // The active step is the one crossing a line in the middle of the screen
+  // (lower on phones, where the 3D object covers the top).
   useEffect(() => {
-    const io = new IntersectionObserver(
-      (entries) => {
-        for (const e of entries) {
-          if (e.isIntersecting) setActive(Number((e.target as HTMLElement).dataset.step));
-        }
-      },
-      // On phones the 3D object covers the top of the screen, so read the step just below it.
-      { rootMargin: window.innerWidth <= 860 ? "-62% 0px -33% 0px" : "-45% 0px -45% 0px" },
-    );
-    steps.current.forEach((el) => el && io.observe(el));
-    return () => io.disconnect();
+    let frame = 0;
+    const update = () => {
+      frame = 0;
+      const line = window.innerHeight * (window.innerWidth <= 860 ? 0.66 : 0.5);
+      let best = 0;
+      steps.current.forEach((el, i) => {
+        if (el && el.getBoundingClientRect().top <= line) best = i;
+      });
+      setActive(best);
+    };
+    const onScroll = () => {
+      if (!frame) frame = requestAnimationFrame(update);
+    };
+    update();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    };
   }, []);
 
   const shape: ShapeId = active === 0 ? "core" : disciplines[active - 1].shape;
