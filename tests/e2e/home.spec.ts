@@ -68,6 +68,23 @@ test.describe("home", () => {
     expect(hrefs.some((h) => h?.includes("srbtest") || h?.includes("ameeqcode.com"))).toBe(false);
   });
 
+  test("the hero name doesn't shift the layout when the canvas takes over", async ({ page }) => {
+    await page.goto("/");
+    await expect(page.locator(".hash-name")).toHaveAttribute("data-ready", "true");
+    const shift = await page.evaluate(
+      () =>
+        new Promise<number>((resolve) => {
+          let total = 0;
+          new PerformanceObserver((list) => {
+            for (const e of list.getEntries() as (PerformanceEntry & { value: number; hadRecentInput: boolean })[])
+              if (!e.hadRecentInput) total += e.value;
+          }).observe({ type: "layout-shift", buffered: true });
+          setTimeout(() => resolve(total), 500);
+        }),
+    );
+    expect(shift).toBeLessThan(0.01);
+  });
+
   test("does not scroll sideways", async ({ page }) => {
     await page.goto("/");
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
@@ -147,6 +164,17 @@ test("serves SEO files and security headers", async ({ request }) => {
   expect(home.headers()["x-content-type-options"]).toBe("nosniff");
   const html = await home.text();
   expect(html).toContain('"@type":"Person"');
+  expect(html).toContain('"@type":"ProfilePage"');
+  expect(html).toContain('<meta name="robots" content="index, follow"');
+  // Every block's details are in the HTML, not just the selected one.
+  expect(html).toContain("University of Sargodha");
+  expect(html).toContain("LC Management");
+  const llms = await (await request.get("/llms.txt")).text();
+  expect(llms).toContain("# Muhammad Shehryar Tariq");
+  expect(llms).toContain("VisionTech, Full Stack Developer (Feb 2026 to now)");
+  expect((await request.get("/manifest.webmanifest")).ok()).toBe(true);
+  expect((await request.get("/apple-icon")).headers()["content-type"]).toBe("image/png");
+  expect((await request.get("/twitter-image")).headers()["content-type"]).toBe("image/png");
   expect(html).toContain('<link rel="canonical" href="https://shehryartariq.vercel.app"');
   expect((await request.get("/robots.txt")).ok()).toBe(true);
   expect(await (await request.get("/sitemap.xml")).text()).toContain("https://shehryartariq.vercel.app/");

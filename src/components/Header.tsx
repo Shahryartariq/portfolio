@@ -14,8 +14,9 @@ export function Header() {
   return (
     <header className="top">
       <div className="wrap">
-        <a className="mark" href="#top" aria-label={`${profile.name}, back to top`}>
+        <a className="mark" href="#top">
           {profile.initials}
+          <span className="sr-only">, {profile.name}, back to top</span>
         </a>
         <nav className="nav" aria-label="Sections">
           {SECTIONS.map((s) => (

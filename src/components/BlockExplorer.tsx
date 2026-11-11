@@ -141,7 +141,6 @@ export function BlockExplorer({ blocks, pending }: { blocks: Block[]; pending: B
     );
   };
 
-  const current = blocks[selected];
   const allOk = checks.every((c) => c === "ok");
 
   return (
@@ -176,7 +175,7 @@ export function BlockExplorer({ blocks, pending }: { blocks: Block[]; pending: B
                 role="tab"
                 id={`tab-${b.height}`}
                 aria-selected={selected === b.height}
-                aria-controls="block-panel"
+                aria-controls={`block-panel-${b.height}`}
                 tabIndex={selected === b.height ? 0 : -1}
                 className="slot-btn"
                 data-tip={b.hash === tip.hash || undefined}
@@ -203,18 +202,23 @@ export function BlockExplorer({ blocks, pending }: { blocks: Block[]; pending: B
         </div>
       </div>
 
-      <article
-        className="block-card panel"
-        id="block-panel"
-        role="tabpanel"
-        aria-labelledby={`tab-${current.height}`}
-        data-height={current.height}
-      >
-        <p className="panel-height" aria-hidden="true">
-          #{current.height}
-        </p>
-        <Details block={current} />
-      </article>
+      {/* Every block's panel is in the page (good for search engines); only the selected one shows. */}
+      {blocks.map((b) => (
+        <div
+          key={b.hash}
+          className="block-card panel"
+          id={`block-panel-${b.height}`}
+          role="tabpanel"
+          aria-labelledby={`tab-${b.height}`}
+          data-height={b.height}
+          hidden={b.height !== selected}
+        >
+          <p className="panel-height" aria-hidden="true">
+            #{b.height}
+          </p>
+          <Details block={b} />
+        </div>
+      ))}
     </div>
   );
 }

@@ -14,6 +14,15 @@ My portfolio. My career is shown as a small blockchain, and every project I've s
 - Dark and light themes that follow the device, with no flash on load.
 - Responsive down to small phones, keyboard friendly, and checked with axe in both themes.
 
+## SEO
+
+- Title, description, canonical, Open Graph and X cards with generated images, robots with `max-image-preview:large`.
+- Structured data: `ProfilePage` with a `Person` (alternate spellings of my name, current job, education, profiles), `WebSite`, and the live projects as `SoftwareSourceCode`.
+- Every career block's details are in the HTML, even when its tab is closed.
+- `sitemap.xml`, `robots.txt`, `manifest.webmanifest`, `/llms.txt` (plain-text summary for AI assistants).
+- The hero heading has the same size and line breaks as the canvas, so there's no layout shift (CLS 0).
+- Optional: `GOOGLE_SITE_VERIFICATION`, `BING_SITE_VERIFICATION`, `GA_MEASUREMENT_ID` (see `.env.example`).
+
 ## Tech
 
 Next.js 16 (App Router, static with 5-minute revalidation) · React 19 · TypeScript (strict) · hand-written CSS · Mona Sans and Geist Mono, both self-hosted · Vitest · Playwright · GitHub Actions.
