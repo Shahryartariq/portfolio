@@ -101,6 +101,27 @@ test.describe("home", () => {
     }
   });
 
+  test("the 3D object reacts to hover, drag and click", async ({ page, isMobile }) => {
+    test.skip(isMobile, "mouse interaction");
+    const errors: string[] = [];
+    page.on("pageerror", (e) => errors.push(e.message));
+    await page.goto("/");
+    await expect(page.locator(".stage3d")).toHaveAttribute("data-ready", "true", { timeout: 10_000 });
+    await expect(page.locator(".stage3d-hint")).toContainText("Drag to spin it");
+    const box = (await page.locator(".stage3d-canvas").boundingBox())!;
+    const cx = box.x + box.width / 2;
+    const cy = box.y + box.height / 2;
+    await page.mouse.move(cx, cy);
+    await page.mouse.down();
+    await page.mouse.move(cx + 120, cy + 20, { steps: 6 });
+    await expect(page.locator(".stage3d-canvas")).toHaveAttribute("data-dragging", "true");
+    await page.mouse.up();
+    await expect(page.locator(".stage3d-canvas")).not.toHaveAttribute("data-dragging", /.*/);
+    await page.mouse.click(cx, cy);
+    await page.mouse.move(box.x - 20, cy);
+    expect(errors).toEqual([]);
+  });
+
   test("projects are tagged by area", async ({ page }) => {
     await page.goto("/");
     const satscope = page.locator("article", { has: page.getByRole("heading", { name: "Satscope" }) });

@@ -76,6 +76,10 @@ export function Stage3D({ shape, label }: { shape: ShapeId; label: string }) {
               else if (m.type === "tilt") engine.tilt(m.x, m.y);
               else if (m.type === "theme") engine.theme(m.light);
               else if (m.type === "visible") engine.visible(m.visible);
+              else if (m.type === "pointer") engine.pointer(m.x, m.y);
+              else if (m.type === "drag") engine.drag(m.dx, m.dy);
+              else if (m.type === "release") engine.release();
+              else if (m.type === "burst") engine.burst();
             },
             dispose: () => engine.dispose(),
           };
@@ -110,6 +114,45 @@ export function Stage3D({ shape, label }: { shape: ShapeId; label: string }) {
         y: (e.clientX / window.innerWidth - 0.5) * 0.5,
       });
     window.addEventListener("pointermove", onPointer, { passive: true });
+    // Hover pushes the points away from the cursor; drag spins it; a click scatters it.
+    const ndc = (e: PointerEvent) => {
+      const r = el.getBoundingClientRect();
+      return { x: ((e.clientX - r.left) / r.width) * 2 - 1, y: -(((e.clientY - r.top) / r.height) * 2 - 1) };
+    };
+    let down: { x: number; y: number; id: number; moved: number } | null = null;
+    const onMove = (e: PointerEvent) => {
+      const p = ndc(e);
+      if (e.pointerType === "mouse" || down) driver.current?.send({ type: "pointer", x: p.x, y: p.y });
+      if (!down || down.id !== e.pointerId) return;
+      const dx = e.clientX - down.x;
+      const dy = e.clientY - down.y;
+      down.moved += Math.abs(dx) + Math.abs(dy);
+      down.x = e.clientX;
+      down.y = e.clientY;
+      driver.current?.send({ type: "drag", dx: (dx / el.clientWidth) * Math.PI * 1.4, dy: (dy / el.clientHeight) * Math.PI * 0.8 });
+    };
+    const onDown = (e: PointerEvent) => {
+      down = { x: e.clientX, y: e.clientY, id: e.pointerId, moved: 0 };
+      el.setPointerCapture(e.pointerId);
+      el.dataset.dragging = "true";
+    };
+    const onUp = (e: PointerEvent) => {
+      if (!down || down.id !== e.pointerId) return;
+      if (down.moved < 6) driver.current?.send({ type: "burst" });
+      else driver.current?.send({ type: "release" });
+      down = null;
+      delete el.dataset.dragging;
+      if (e.pointerType !== "mouse") driver.current?.send({ type: "pointer", x: null });
+    };
+    const onLeave = () => {
+      if (!down) driver.current?.send({ type: "pointer", x: null });
+    };
+    el.addEventListener("pointermove", onMove);
+    el.addEventListener("pointerdown", onDown);
+    el.addEventListener("pointerup", onUp);
+    el.addEventListener("pointercancel", onUp);
+    el.addEventListener("pointerleave", onLeave);
+
     const onVisibility = () => driver.current?.send({ type: "visible", visible: !document.hidden });
     document.addEventListener("visibilitychange", onVisibility);
     const onTheme = () => driver.current?.send({ type: "theme", light: isLight() });
@@ -124,6 +167,11 @@ export function Stage3D({ shape, label }: { shape: ShapeId; label: string }) {
       ro.disconnect();
       io.disconnect();
       window.removeEventListener("pointermove", onPointer);
+      el.removeEventListener("pointermove", onMove);
+      el.removeEventListener("pointerdown", onDown);
+      el.removeEventListener("pointerup", onUp);
+      el.removeEventListener("pointercancel", onUp);
+      el.removeEventListener("pointerleave", onLeave);
       document.removeEventListener("visibilitychange", onVisibility);
       window.removeEventListener("portfolio:theme", onTheme);
       scheme.removeEventListener("change", onTheme);
@@ -140,6 +188,12 @@ export function Stage3D({ shape, label }: { shape: ShapeId; label: string }) {
       <p className="sr-only" aria-live="polite">
         {label}
       </p>
+      {ready && (
+        <p className="stage3d-hint" aria-hidden="true">
+          <span className="hint-fine">Drag to spin it, click to scatter it</span>
+          <span className="hint-coarse">Swipe sideways to spin it, tap to scatter it</span>
+        </p>
+      )}
     </div>
   );
 }
