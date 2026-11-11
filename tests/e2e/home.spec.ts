@@ -10,8 +10,8 @@ test.describe("home", () => {
 
     await expect(page.getByRole("heading", { level: 1 })).toHaveText("Muhammad Shehryar Tariq");
     await expect(page.getByTestId("tip-hash")).toContainText("0000");
-    await expect(page.getByRole("tab")).toHaveCount(7);
-    await expect(page.getByTestId("pending-block")).toBeVisible();
+    await expect(page.getByRole("tab")).toHaveCount(8);
+    await expect(page.getByTestId("pending-block")).toHaveCount(0);
     await expect(page.locator("[data-testid^=status-]")).toHaveCount(7);
     await expect(page.getByRole("link", { name: "shahryartariq57@gmail.com" })).toHaveAttribute(
       "href",
@@ -23,14 +23,16 @@ test.describe("home", () => {
   test("verifies the chain in the browser", async ({ page }) => {
     await page.goto("/");
     await page.getByRole("button", { name: "Verify the chain" }).click();
-    await expect(page.locator(".verify-result")).toContainText("Valid. Your browser rehashed all 7 blocks");
-    await expect(page.locator(".link[data-check=ok]")).toHaveCount(6);
+    await expect(page.locator(".verify-result")).toContainText("Valid. Your browser rehashed all 8 blocks");
+    await expect(page.locator(".link[data-check=ok]")).toHaveCount(7);
   });
 
   test("explorer opens on the newest block and switches with clicks and arrow keys", async ({ page }) => {
     await page.goto("/");
     const panel = page.getByRole("tabpanel");
-    await expect(page.getByRole("tab", { selected: true })).toContainText("Own work");
+    await expect(page.getByRole("tab", { selected: true })).toContainText("VisionTech");
+    await expect(panel).toContainText("Feb 2026 to now");
+    await page.getByRole("tab", { name: /Own work/ }).click();
     await expect(panel.getByRole("link", { name: "Satscope" })).toBeVisible();
     await page.getByRole("tab", { name: /AmeeqCode/ }).click();
     await expect(panel).toContainText("LC Management");
@@ -52,9 +54,9 @@ test.describe("home", () => {
     await page.getByRole("button", { name: "Mine and send" }).click();
     const done = page.getByTestId("mined");
     await expect(done).toBeVisible({ timeout: 60_000 });
-    await expect(done).toContainText("Block #7 mined");
+    await expect(done).toContainText("Block #8 mined");
     const href = await done.getByRole("link", { name: "Send it by email" }).getAttribute("href");
-    expect(href).toMatch(/^mailto:shahryartariq57@gmail\.com\?subject=Block%20%237%20from%20Ayesha%20from%20Acme&body=/);
+    expect(href).toMatch(/^mailto:shahryartariq57@gmail\.com\?subject=Block%20%238%20from%20Ayesha%20from%20Acme&body=/);
     expect(decodeURIComponent(href!)).toMatch(/hash {3}0000[0-9a-f]{60}/);
     await done.getByRole("button", { name: "Write another" }).click();
     await expect(page.getByRole("button", { name: "Mine and send" })).toBeVisible();
@@ -64,6 +66,23 @@ test.describe("home", () => {
     await page.goto("/");
     const hrefs = await page.locator("a[href]").evaluateAll((as) => as.map((a) => a.getAttribute("href")));
     expect(hrefs.some((h) => h?.includes("srbtest") || h?.includes("ameeqcode.com"))).toBe(false);
+  });
+
+  test("the hero name doesn't shift the layout when the canvas takes over", async ({ page }) => {
+    await page.goto("/");
+    await expect(page.locator(".hash-name")).toHaveAttribute("data-ready", "true");
+    const shift = await page.evaluate(
+      () =>
+        new Promise<number>((resolve) => {
+          let total = 0;
+          new PerformanceObserver((list) => {
+            for (const e of list.getEntries() as (PerformanceEntry & { value: number; hadRecentInput: boolean })[])
+              if (!e.hadRecentInput) total += e.value;
+          }).observe({ type: "layout-shift", buffered: true });
+          setTimeout(() => resolve(total), 500);
+        }),
+    );
+    expect(shift).toBeLessThan(0.01);
   });
 
   test("does not scroll sideways", async ({ page }) => {
@@ -145,6 +164,17 @@ test("serves SEO files and security headers", async ({ request }) => {
   expect(home.headers()["x-content-type-options"]).toBe("nosniff");
   const html = await home.text();
   expect(html).toContain('"@type":"Person"');
+  expect(html).toContain('"@type":"ProfilePage"');
+  expect(html).toContain('<meta name="robots" content="index, follow"');
+  // Every block's details are in the HTML, not just the selected one.
+  expect(html).toContain("University of Sargodha");
+  expect(html).toContain("LC Management");
+  const llms = await (await request.get("/llms.txt")).text();
+  expect(llms).toContain("# Muhammad Shehryar Tariq");
+  expect(llms).toContain("VisionTech, Full Stack Developer (Feb 2026 to now)");
+  expect((await request.get("/manifest.webmanifest")).ok()).toBe(true);
+  expect((await request.get("/apple-icon")).headers()["content-type"]).toBe("image/png");
+  expect((await request.get("/twitter-image")).headers()["content-type"]).toBe("image/png");
   expect(html).toContain('<link rel="canonical" href="https://shehryartariq.vercel.app"');
   expect((await request.get("/robots.txt")).ok()).toBe(true);
   expect(await (await request.get("/sitemap.xml")).text()).toContain("https://shehryartariq.vercel.app/");

@@ -772,36 +772,52 @@ div.slot-btn {
 }
 
 /* ───────── Hash name ───────── */
+/*
+ * The heading and the canvas share one size rule: the widest line fills the
+ * container (Mona Sans 800 at 125% width measures 8.046em for "Shehryar Tariq"
+ * and 6.795em for "Muhammad"), capped at 200px. Keep in sync with HashName.tsx.
+ */
 .hash-name {
   position: relative;
+  container-type: inline-size;
+}
+
+.hash-name-fallback {
+  font-size: min(200px, 14.49cqw);
+  font-weight: 800;
+  font-stretch: 125%;
+  line-height: 0.9;
+  letter-spacing: 0;
+  padding-bottom: 0.14em;
+}
+
+.hash-name-break {
+  display: block;
+}
+
+@container (min-width: 640px) {
+  .hash-name-fallback {
+    font-size: min(200px, 12.24cqw);
+  }
+  .hash-name-break-sm {
+    display: inline;
+  }
 }
 
 .hash-name canvas {
-  display: none;
-  max-width: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  visibility: hidden;
   touch-action: pan-y;
 }
 
 .hash-name[data-ready="true"] canvas {
-  display: block;
-}
-
-.hash-name-fallback {
-  font-size: var(--step-hero);
-  font-weight: 790;
-  font-stretch: 125%;
-  line-height: 0.9;
-  letter-spacing: -0.03em;
-  max-width: 11ch;
+  visibility: visible;
 }
 
 .hash-name[data-ready="true"] .hash-name-fallback {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip-path: inset(50%);
-  white-space: nowrap;
+  color: transparent;
 }
 
 /* ───────── Message miner ───────── */

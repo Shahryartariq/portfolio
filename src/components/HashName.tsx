@@ -23,6 +23,8 @@ function cssVar(name: string): string {
  * heading stays in the DOM for screen readers and search engines.
  */
 export function HashName({ name }: { name: string }) {
+  const [first, middle, ...rest] = name.split(" ");
+  const last = rest.join(" ");
   const wrap = useRef<HTMLDivElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
 
@@ -211,8 +213,13 @@ export function HashName({ name }: { name: string }) {
 
   return (
     <div className="hash-name" ref={wrap}>
+      {/* Same size and line breaks as the canvas, so nothing moves when it takes over. */}
       <h1 className="hash-name-fallback" id="name">
-        {name}
+        {first}
+        <span className="hash-name-break"> </span>
+        {middle}
+        <span className="hash-name-break hash-name-break-sm"> </span>
+        {last}
       </h1>
       <canvas ref={canvas} aria-hidden="true" />
     </div>

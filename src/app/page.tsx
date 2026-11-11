@@ -88,20 +88,77 @@ export default async function Home() {
     { id: "t-system", label: "Match my device", hint: "Theme", action: "theme:system", keywords: "system auto" },
   ];
 
-  const jsonLd = {
-    "@context": "https://schema.org",
+  const current = blocks.find((b) => b.kind === "job" && b.end === null);
+  const person = {
     "@type": "Person",
+    "@id": `${profile.siteUrl}/#person`,
     name: profile.name,
-    jobTitle: profile.role,
+    alternateName: ["Shehryar Tariq", "Muhammad Shehryar", "Shahryar Tariq", "Sherry"],
+    givenName: "Muhammad Shehryar",
+    familyName: "Tariq",
+    jobTitle: current?.title ?? profile.role,
+    ...(current ? { worksFor: { "@type": "Organization", name: current.org } } : {}),
+    description: profile.lede,
     url: profile.siteUrl,
+    image: `${profile.siteUrl}/opengraph-image`,
     email: `mailto:${profile.email}`,
     address: { "@type": "PostalAddress", addressLocality: "Islamabad", addressCountry: "PK" },
+    nationality: { "@type": "Country", name: "Pakistan" },
     alumniOf: [
-      { "@type": "CollegeOrUniversity", name: "National University of Computer and Emerging Sciences" },
-      { "@type": "CollegeOrUniversity", name: "University of Sargodha" },
+      {
+        "@type": "CollegeOrUniversity",
+        name: "National University of Computer and Emerging Sciences (FAST NUCES)",
+        sameAs: "https://www.nu.edu.pk/",
+      },
+      { "@type": "CollegeOrUniversity", name: "University of Sargodha", sameAs: "https://su.edu.pk/" },
     ],
-    knowsAbout: ["TypeScript", "Rust", "Next.js", "Bitcoin", "Web3", "Application security"],
+    hasCredential: about.education.map((e) => ({
+      "@type": "EducationalOccupationalCredential",
+      credentialCategory: "degree",
+      name: e.degree,
+    })),
+    knowsAbout: ["TypeScript", "Next.js", "React", "Rust", "Node.js", "PostgreSQL", "Bitcoin", "Web3", "Application security"],
     sameAs: [profile.links.github, profile.links.linkedin, profile.links.x],
+  };
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "ProfilePage",
+        "@id": `${profile.siteUrl}/#page`,
+        url: profile.siteUrl,
+        name: `${profile.name} | Full-Stack Engineer`,
+        inLanguage: "en",
+        dateModified: new Date().toISOString(),
+        mainEntity: { "@id": `${profile.siteUrl}/#person` },
+      },
+      person,
+      {
+        "@type": "WebSite",
+        "@id": `${profile.siteUrl}/#website`,
+        url: profile.siteUrl,
+        name: profile.name,
+        inLanguage: "en",
+        author: { "@id": `${profile.siteUrl}/#person` },
+      },
+      {
+        "@type": "ItemList",
+        name: "Live projects",
+        itemListElement: projects.map((p, i) => ({
+          "@type": "ListItem",
+          position: i + 1,
+          item: {
+            "@type": "SoftwareSourceCode",
+            name: p.name,
+            url: p.url,
+            description: p.pitch,
+            codeRepository: p.repo,
+            programmingLanguage: p.stack,
+            author: { "@id": `${profile.siteUrl}/#person` },
+          },
+        })),
+      },
+    ],
   };
 
   return (
@@ -138,7 +195,9 @@ export default async function Home() {
                   {tip.height} <span className="dim">({blocks.length} blocks)</span>
                 </dd>
                 <dt>Latest</dt>
-                <dd>{tip.title}</dd>
+                <dd>
+                  {tip.org}, {tip.title}
+                </dd>
                 <dt>Hash</dt>
                 <dd data-testid="tip-hash">
                   <MiningHash value={tip.hash} />
