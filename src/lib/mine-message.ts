@@ -25,12 +25,12 @@ export type MinerOut =
   | { type: "found"; nonce: number; hash: string; ms: number };
 
 export function mailto(to: string, m: MessageBlock, nonce: number, hash: string): string {
-  const subject = `Block #${m.height} from ${m.from}`;
+  const subject = `Message from ${m.from}`;
   const body = [
     m.message,
     "",
-    "Mined on your portfolio:",
-    `  height ${m.height}`,
+    "Sent from your portfolio with proof of work:",
+    `  step   ${m.height}`,
     `  hash   ${hash}`,
     `  prev   ${m.prev}`,
     `  nonce  ${nonce}`,

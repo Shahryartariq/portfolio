@@ -71,10 +71,10 @@ export function MineMessage({ to, prev, height }: { to: string; prev: string; he
   if (state.step === "mined") {
     return (
       <div className="miner miner-done" data-testid="mined">
-        <p className="miner-title">Block #{state.block.height} mined</p>
+        <p className="miner-title">Proof of work done</p>
         <p className="dim">
-          Your browser tried {state.nonce.toLocaleString("en-US")} nonces in {(state.ms / 1000).toFixed(1)} s to find a
-          hash starting with {"0".repeat(DIFFICULTY)}. It sits on top of my chain.
+          Your browser tried {state.nonce.toLocaleString("en-US")} hashes in {(state.ms / 1000).toFixed(1)} s to find one
+          starting with {"0".repeat(DIFFICULTY)}. Your message is now step #{state.block.height}.
         </p>
         <dl className="miner-stats">
           <div>
@@ -105,10 +105,10 @@ export function MineMessage({ to, prev, height }: { to: string; prev: string; he
   const mining = state.step === "mining";
   return (
     <form className="miner" onSubmit={onSubmit} noValidate aria-busy={mining}>
-      <p className="miner-title">Or mine me a message</p>
+      <p className="miner-title">Or send a message with proof of work</p>
       <p className="dim">
-        Your browser mines it as block #{height}, on top of my chain, then opens your email app to send it. Takes a
-        second or two.
+        Before your email app opens, your browser does a second or two of SHA-256 work on the message. It&rsquo;s
+        Hashcash, the anti-spam idea Bitcoin later borrowed, and it links your message to my timeline as step #{height}.
       </p>
       <div className="field-row">
         <label className="field">
@@ -147,7 +147,7 @@ export function MineMessage({ to, prev, height }: { to: string; prev: string; he
       ) : (
         <p className="actions">
           <button type="submit" className="btn btn-primary">
-            Mine and send
+            Do the work and send
           </button>
         </p>
       )}

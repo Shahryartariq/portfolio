@@ -70,24 +70,27 @@ function Details({ block }: { block: Block }) {
           </ol>
         </div>
       )}
-      <dl className="block-proof">
-        <div>
-          <dt>Hash</dt>
-          <dd>
-            <Hash value={block.hash} />
-          </dd>
-        </div>
-        <div>
-          <dt>Previous</dt>
-          <dd>
-            <Hash value={block.prev} />
-          </dd>
-        </div>
-        <div>
-          <dt>Nonce</dt>
-          <dd className="mono">{block.nonce.toLocaleString("en-US")}</dd>
-        </div>
-      </dl>
+      <details className="block-proof-wrap">
+        <summary>Integrity proof</summary>
+        <dl className="block-proof">
+          <div>
+            <dt>Hash</dt>
+            <dd>
+              <Hash value={block.hash} />
+            </dd>
+          </div>
+          <div>
+            <dt>Previous</dt>
+            <dd>
+              <Hash value={block.prev} />
+            </dd>
+          </div>
+          <div>
+            <dt>Nonce</dt>
+            <dd className="mono">{block.nonce.toLocaleString("en-US")}</dd>
+          </div>
+        </dl>
+      </details>
     </>
   );
 }
@@ -136,8 +139,8 @@ export function BlockExplorer({ blocks, pending }: { blocks: Block[]; pending: B
     }
     setResult(
       broken === -1
-        ? `Valid. Your browser rehashed all ${blocks.length} blocks in ${ms} ms and every link matches.`
-        : `Block ${broken} doesn't match its hash. The chain is broken from there on.`,
+        ? `Intact. Your browser rehashed all ${blocks.length} steps in ${ms} ms and every link matches.`
+        : `Step ${broken} doesn't match its hash. Everything after it is broken.`,
     );
   };
 
@@ -145,19 +148,9 @@ export function BlockExplorer({ blocks, pending }: { blocks: Block[]; pending: B
 
   return (
     <div className="explorer">
-      <div className="explorer-bar">
-        <button type="button" className="btn" onClick={verify} disabled={checks.some((c) => c === "checking")}>
-          {checks.some((c) => c === "checking") ? "Checking…" : allOk ? "Verify again" : "Verify the chain"}
-        </button>
-        <p className="verify-result" role="status" aria-live="polite" data-state={allOk ? "ok" : result ? "bad" : "idle"}>
-          {result}
-        </p>
-        <p className="explorer-hint dim">Pick a block to see what&rsquo;s inside.</p>
-      </div>
-
       <div className="strip" ref={strip}>
         <div className="strip-track">
-          <div className="strip-tabs" role="tablist" aria-label="Career blocks, oldest to newest">
+          <div className="strip-tabs" role="tablist" aria-label="Experience, oldest to newest">
           {blocks.map((b, i) => (
             <div
               className="slot"
@@ -219,6 +212,31 @@ export function BlockExplorer({ blocks, pending }: { blocks: Block[]; pending: B
           <Details block={b} />
         </div>
       ))}
+
+      <div className="integrity">
+        <p className="integrity-text">
+          This timeline is tamper-evident. Each step is hashed with SHA-256 together with the hash of the step before it,
+          so changing an old entry would break every one after it.
+        </p>
+        <div className="explorer-bar">
+          <button
+            type="button"
+            className="btn"
+            onClick={verify}
+            disabled={checks.some((c) => c === "checking")}
+          >
+            {checks.some((c) => c === "checking") ? "Checking…" : allOk ? "Check again" : "Check it in your browser"}
+          </button>
+          <p
+            className="verify-result"
+            role="status"
+            aria-live="polite"
+            data-state={allOk ? "ok" : result ? "bad" : "idle"}
+          >
+            {result}
+          </p>
+        </div>
+      </div>
     </div>
   );
 }

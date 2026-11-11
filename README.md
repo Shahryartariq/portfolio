@@ -2,17 +2,16 @@
 
 **Live: [shehryartariq.vercel.app](https://shehryartariq.vercel.app)**
 
-My portfolio. My career is shown as a small blockchain, and every project I've shipped has a live status check.
+My portfolio as a full-stack engineer working across AI, blockchain and security, with a 3D object that changes with each area and a live status check for every project I've shipped.
 
 ## What makes it different
 
-- **A name made of hashes.** The hero draws my name on a canvas, with hex digits cut into the letters that keep re-rolling like a miner. Under the cursor they settle to zeros, as if a proof was found. The real `<h1>` stays in the page for screen readers and search engines.
-- **The career chain is real.** Each step of my career is a block that gets mined with proof of work when the site is built. Every hash starts with four zeros and includes the hash of the block before it, so editing an old entry breaks every block after it. The chain is shown as a row of 3D blocks you can step through with the mouse or arrow keys. Visitors can press **Verify the chain** to rehash every block in their own browser with Web Crypto, and watch the links turn green one by one.
-- **Contact by mining a block.** The contact form mines the visitor's message as the next block on top of the chain, in a Web Worker, showing the nonce and hash rate as it goes. It then opens their email app with the message and the mined block.
-- **Live project status.** The server checks each of my seven live projects every five minutes and shows whether it's up and how fast it answered.
-- **Command palette.** Press <kbd>Ctrl</kbd>/<kbd>⌘</kbd> + <kbd>K</kbd> to jump to any section, project, source repo or link, copy my email, or switch the theme.
-- Dark and light themes that follow the device, with no flash on load.
-- Responsive down to small phones, keyboard friendly, and checked with axe in both themes.
+- **A name made of hashes.** The hero draws my name on a canvas, with hex digits cut into the letters that keep re-rolling. Under the cursor they settle to zeros. The real `<h1>` has the same size and line breaks, so nothing shifts when the canvas takes over.
+- **A 3D object for the four areas I work in.** A cloud of points (three.js) morphs as you scroll: a sphere for the intro, then a browser window (full-stack), a neural network (AI), linked blocks (blockchain) and a shield with a keyhole (security). It renders in a Web Worker on an OffscreenCanvas, so the page stays responsive (falls back to the main thread where OffscreenCanvas isn't supported), loads when the browser is idle, pauses off screen, and holds still for reduced-motion users.
+- **Live project status.** The server checks each of my seven live projects every five minutes. Projects are tagged by area.
+- **A tamper-evident experience timeline.** Each step is SHA-256 hashed with the step before it, mined at build time. Visitors can recheck the whole timeline in their browser with Web Crypto.
+- **Contact with proof of work.** Before the email opens, the browser does a second or two of Hashcash-style work on the message in a Web Worker.
+- **Command palette** (<kbd>Ctrl</kbd>/<kbd>⌘</kbd> + <kbd>K</kbd>), dark and light themes with no flash, responsive down to small phones, axe-checked in both themes.
 
 ## SEO
 
@@ -25,7 +24,7 @@ My portfolio. My career is shown as a small blockchain, and every project I've s
 
 ## Tech
 
-Next.js 16 (App Router, static with 5-minute revalidation) · React 19 · TypeScript (strict) · hand-written CSS · Mona Sans and Geist Mono, both self-hosted · Vitest · Playwright · GitHub Actions.
+Next.js 16 (App Router, static with 5-minute revalidation) · React 19 · TypeScript (strict) · three.js · hand-written CSS · Mona Sans and Geist Mono, both self-hosted · Vitest · Playwright · GitHub Actions.
 
 ## Run it locally
 
@@ -46,7 +45,8 @@ STATUS_SAMPLE_DATA=1 npm run build && npm run test:e2e
 | What | Where |
 | --- | --- |
 | Name, intro, links, about, education, skills | `src/data/profile.ts` |
-| Career chain (jobs, studies, highlights) | `src/data/chain.ts` |
+| Experience timeline (jobs, studies, highlights) | `src/data/chain.ts` |
+| The four areas (text, proof points, tools) | `src/data/disciplines.ts` |
 | Live projects | `src/data/projects.ts` |
 | Client work | `src/data/clients.ts` |
 
