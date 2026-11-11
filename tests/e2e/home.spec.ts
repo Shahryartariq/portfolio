@@ -10,7 +10,7 @@ test.describe("home", () => {
 
     await expect(page.getByRole("heading", { level: 1 })).toHaveText("Muhammad Shehryar Tariq");
     await expect(page.getByTestId("tip-hash")).toContainText("0000");
-    await expect(page.locator(".chain > .block:not(.block-pending)")).toHaveCount(7);
+    await expect(page.getByRole("tab")).toHaveCount(7);
     await expect(page.getByTestId("pending-block")).toBeVisible();
     await expect(page.locator("[data-testid^=status-]")).toHaveCount(7);
     await expect(page.getByRole("link", { name: "shahryartariq57@gmail.com" })).toHaveAttribute(
@@ -24,15 +24,40 @@ test.describe("home", () => {
     await page.goto("/");
     await page.getByRole("button", { name: "Verify the chain" }).click();
     await expect(page.locator(".verify-result")).toContainText("Valid. Your browser rehashed all 7 blocks");
+    await expect(page.locator(".link[data-check=ok]")).toHaveCount(6);
   });
 
-  test("the tip block shows its projects; older blocks open on click", async ({ page }) => {
+  test("explorer opens on the newest block and switches with clicks and arrow keys", async ({ page }) => {
     await page.goto("/");
-    await expect(page.locator("#block-6").getByRole("link", { name: "Satscope" })).toBeVisible();
-    const ameeq = page.locator("#block-3");
-    await expect(ameeq.getByText("LC Management")).toBeHidden();
-    await ameeq.getByText("3 projects").click();
-    await expect(ameeq.getByText("LC Management")).toBeVisible();
+    const panel = page.getByRole("tabpanel");
+    await expect(page.getByRole("tab", { selected: true })).toContainText("Own work");
+    await expect(panel.getByRole("link", { name: "Satscope" })).toBeVisible();
+    await page.getByRole("tab", { name: /AmeeqCode/ }).click();
+    await expect(panel).toContainText("LC Management");
+    await expect(panel).toContainText("Jun 2023 to Feb 2025");
+    await page.keyboard.press("ArrowLeft");
+    await expect(page.getByRole("tab", { selected: true })).toContainText("FAST NUCES");
+    await expect(page.getByRole("tab", { selected: true })).toBeFocused();
+    await page.keyboard.press("Home");
+    await expect(panel).toContainText("University of Sargodha");
+  });
+
+  test("mines a visitor's message and builds the email", async ({ page }) => {
+    test.setTimeout(90_000);
+    await page.goto("/");
+    await page.getByRole("button", { name: "Mine and send" }).click();
+    await expect(page.locator(".field-error")).toHaveText("Add your name so I know who the block is from.");
+    await page.getByLabel("Your name").fill("Ayesha from Acme");
+    await page.getByLabel("Message").fill("We'd like to talk about a Rust role.");
+    await page.getByRole("button", { name: "Mine and send" }).click();
+    const done = page.getByTestId("mined");
+    await expect(done).toBeVisible({ timeout: 60_000 });
+    await expect(done).toContainText("Block #7 mined");
+    const href = await done.getByRole("link", { name: "Send it by email" }).getAttribute("href");
+    expect(href).toMatch(/^mailto:shahryartariq57@gmail\.com\?subject=Block%20%237%20from%20Ayesha%20from%20Acme&body=/);
+    expect(decodeURIComponent(href!)).toMatch(/hash {3}0000[0-9a-f]{60}/);
+    await done.getByRole("button", { name: "Write another" }).click();
+    await expect(page.getByRole("button", { name: "Mine and send" })).toBeVisible();
   });
 
   test("has no internal links to client systems", async ({ page }) => {
@@ -51,7 +76,7 @@ test.describe("home", () => {
     test(`passes axe in ${scheme} mode`, async ({ page }) => {
       await page.emulateMedia({ colorScheme: scheme, reducedMotion: "reduce" });
       await page.goto("/");
-      await page.locator("#block-3 summary").click();
+      await page.getByRole("tab", { name: /AmeeqCode/ }).click();
       const results = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21aa"]).analyze();
       expect(results.violations.map((v) => `${v.id}: ${v.nodes.length}`)).toEqual([]);
     });

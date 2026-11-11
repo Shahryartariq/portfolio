@@ -61,3 +61,17 @@ describe("command palette search", () => {
     expect(filterItems(items, "nothing")).toEqual([]);
   });
 });
+
+describe("message block", () => {
+  it("builds a mailto with the block in the body", async () => {
+    const { mailto, messagePayload } = await import("@/lib/mine-message");
+    const block = { height: 7, prev: "0000ab", from: "Ayesha", email: "a@acme.io", message: "Hi & bye", time: "2026-11-11T08:00:00.000Z" };
+    const url = mailto("me@x.com", block, 42, "0000ff");
+    expect(url.startsWith("mailto:me@x.com?subject=Block%20%237%20from%20Ayesha&body=")).toBe(true);
+    const body = decodeURIComponent(url.split("&body=")[1]);
+    expect(body).toContain("Hi & bye");
+    expect(body).toContain("nonce  42");
+    expect(body).toContain("reply  a@acme.io");
+    expect(JSON.parse(messagePayload(block, 3))).toMatchObject({ height: 7, prev: "0000ab", nonce: 3 });
+  });
+});

@@ -6,7 +6,9 @@ My portfolio. My career is shown as a small blockchain, and every project I've s
 
 ## What makes it different
 
-- **The career chain is real.** Each step of my career is a block that gets mined with proof of work when the site is built. Every hash starts with four zeros and includes the hash of the block before it, so editing an old entry breaks every block after it. Visitors can press **Verify the chain** to rehash every block in their own browser with Web Crypto.
+- **A name made of hashes.** The hero draws my name on a canvas, with hex digits cut into the letters that keep re-rolling like a miner. Under the cursor they settle to zeros, as if a proof was found. The real `<h1>` stays in the page for screen readers and search engines.
+- **The career chain is real.** Each step of my career is a block that gets mined with proof of work when the site is built. Every hash starts with four zeros and includes the hash of the block before it, so editing an old entry breaks every block after it. The chain is shown as a row of 3D blocks you can step through with the mouse or arrow keys. Visitors can press **Verify the chain** to rehash every block in their own browser with Web Crypto, and watch the links turn green one by one.
+- **Contact by mining a block.** The contact form mines the visitor's message as the next block on top of the chain, in a Web Worker, showing the nonce and hash rate as it goes. It then opens their email app with the message and the mined block.
 - **Live project status.** The server checks each of my seven live projects every five minutes and shows whether it's up and how fast it answered.
 - **Command palette.** Press <kbd>Ctrl</kbd>/<kbd>⌘</kbd> + <kbd>K</kbd> to jump to any section, project, source repo or link, copy my email, or switch the theme.
 - Dark and light themes that follow the device, with no flash on load.

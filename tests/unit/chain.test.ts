@@ -5,7 +5,7 @@ vi.mock("next/cache", () => ({ unstable_cache: (fn: unknown) => fn }));
 import { chainData } from "@/data/chain";
 import { DIFFICULTY, GENESIS_PREV, getChain, mineChain, payload, sha256, verifyChain } from "@/lib/chain";
 import { month, short, span } from "@/lib/chain-core";
-import { verifyInBrowser } from "@/components/VerifyChain";
+import { verifyInBrowser } from "@/components/verify";
 
 const confirmed = chainData.filter((d) => !d.pending);
 const blocks = mineChain(confirmed);

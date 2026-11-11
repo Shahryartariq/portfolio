@@ -3,25 +3,18 @@ import { CopyEmail } from "@/components/CopyEmail";
 import { Hash } from "@/components/Hash";
 import { Header, SECTIONS } from "@/components/Header";
 import { MiningHash } from "@/components/MiningHash";
-import { VerifyChain } from "@/components/VerifyChain";
+import { BlockExplorer } from "@/components/BlockExplorer";
+import { HashName } from "@/components/HashName";
+import { MineMessage } from "@/components/MineMessage";
 import { clients } from "@/data/clients";
 import { projects, type Project } from "@/data/projects";
 import { about, profile } from "@/data/profile";
 import { getChain } from "@/lib/chain";
-import { span, type Block } from "@/lib/chain-core";
-import type { BlockData } from "@/data/chain";
 import { getStatuses, type SiteStatus } from "@/lib/status";
 
 export const revalidate = 300;
 
 const REPO = "https://github.com/Shahryartariq/portfolio";
-
-const TX_LABEL: Record<BlockData["kind"], [string, string]> = {
-  job: ["project", "projects"],
-  build: ["project", "projects"],
-  study: ["highlight", "highlights"],
-  freelance: ["highlight", "highlights"],
-};
 
 function utcTime(iso: string): string {
   const d = new Date(iso);
@@ -54,85 +47,6 @@ function ProjectLinks({ p }: { p: Project }) {
         <span className="sr-only"> for {p.name} (opens in a new tab)</span>
       </a>
     </p>
-  );
-}
-
-function ChainBlock({ block, tip }: { block: Block; tip: boolean }) {
-  const [one, many] = TX_LABEL[block.kind];
-  return (
-    <li className="block" data-tip={tip} id={`block-${block.height}`}>
-      <p className="block-height">
-        <span className="sr-only">Block </span>
-        <span aria-hidden="true">#</span>
-        {block.height}
-      </p>
-      <div className="block-spine" aria-hidden="true" />
-      <article className="block-card" aria-labelledby={`block-${block.height}-org`}>
-        <div className="block-main">
-          <div className="block-top">
-            <h3 className="block-org" id={`block-${block.height}-org`}>
-              {block.org}
-            </h3>
-            <p className="block-when">{span(block.start, block.end)}</p>
-          </div>
-          <p className="block-title">
-            {block.title}
-            <span className="dim">, {block.place}</span>
-          </p>
-          <p className="block-summary">{block.summary}</p>
-        </div>
-        <p className="block-proof">
-          <span>
-            hash <b><Hash value={block.hash} head={12} tail={6} /></b>
-          </span>
-          <span>
-            prev <Hash value={block.prev} head={12} tail={6} />
-          </span>
-          <span className="mono">nonce {block.nonce.toLocaleString("en-US")}</span>
-        </p>
-        {block.txs.length > 0 && (
-          <details className="txs" open={tip}>
-            <summary>
-              {block.txs.length} {block.txs.length === 1 ? one : many}
-            </summary>
-            <ol>
-              {block.txs.map((tx) => (
-                <li key={tx.title}>
-                  <p className="tx-title">
-                    {tx.href ? (
-                      <a href={tx.href} target="_blank" rel="noopener">
-                        {tx.title}
-                      </a>
-                    ) : (
-                      tx.title
-                    )}
-                  </p>
-                  {tx.detail && <p className="tx-detail">{tx.detail}</p>}
-                </li>
-              ))}
-            </ol>
-          </details>
-        )}
-      </article>
-    </li>
-  );
-}
-
-function PendingBlock({ data }: { data: BlockData }) {
-  return (
-    <li className="block block-pending" data-testid="pending-block">
-      <p className="block-height">Pending</p>
-      <div className="block-spine" aria-hidden="true" />
-      <article className="block-card">
-        <div className="block-main">
-          <div className="block-top">
-            <h3 className="block-org">{data.title}</h3>
-            <p className="block-when">{span(data.start, data.end)}</p>
-          </div>
-          <p className="block-summary">{data.org}. Not mined yet, so it isn&rsquo;t part of the chain.</p>
-        </div>
-      </article>
-    </li>
   );
 }
 
@@ -196,9 +110,7 @@ export default async function Home() {
       <Header />
       <main id="main">
         <section className="hero wrap" id="top" aria-labelledby="name">
-          <h1 className="hero-name" id="name">
-            {profile.name}
-          </h1>
+          <HashName name={profile.name} />
           <div className="hero-grid">
             <div>
               <p className="hero-role">Full-stack engineer in Islamabad, working in TypeScript and Rust.</p>
@@ -258,23 +170,13 @@ export default async function Home() {
               <h2 className="section-title" id="chain-title">
                 Career, block by block
               </h2>
-              <div>
-                <p className="section-note">
-                  Each step of my career is a block, mined with real proof of work when this site is built. Every hash
-                  starts with four zeros and includes the hash of the block before it, so editing an old entry would
-                  break every block after it.
-                </p>
-                <VerifyChain blocks={blocks} />
-              </div>
+              <p className="section-note">
+                Each step of my career is a block, mined with real proof of work when this site is built. Every hash
+                starts with four zeros and includes the hash of the block before it, so editing an old entry would break
+                every block after it. Check it yourself.
+              </p>
             </div>
-            <ol className="chain" reversed aria-label="Career, newest first">
-              {pending.map((p) => (
-                <PendingBlock key={p.id} data={p} />
-              ))}
-              {[...blocks].reverse().map((b) => (
-                <ChainBlock key={b.hash} block={b} tip={b.hash === tip.hash} />
-              ))}
-            </ol>
+            <BlockExplorer blocks={blocks} pending={pending} />
           </div>
         </section>
 
@@ -443,6 +345,7 @@ export default async function Home() {
                 X
               </a>
             </p>
+            <MineMessage to={profile.email} prev={tip.hash} height={tip.height + 1} />
           </div>
         </section>
       </main>
