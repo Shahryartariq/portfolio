@@ -1423,6 +1423,119 @@ div.slot-btn {
   }
 }
 
+/* ───────── GitHub skyline ───────── */
+.skyline-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(8.5rem, 1fr));
+  gap: 1rem 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.skyline-stats dt {
+  font-size: var(--step--1);
+  color: var(--dim);
+}
+
+.skyline-stats dd {
+  font-size: var(--step-1);
+  font-weight: 700;
+  font-stretch: 112%;
+  font-variant-numeric: tabular-nums;
+}
+
+.skyline-stage {
+  position: relative;
+  height: clamp(260px, 42vw, 540px);
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  background:
+    radial-gradient(ellipse at 50% 60%, color-mix(in srgb, var(--accent) 12%, transparent), transparent 65%),
+    var(--deck);
+  overflow: hidden;
+}
+
+.heatmap {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: min(92%, 52rem);
+  height: auto;
+  max-height: 80%;
+  transition: opacity 0.6s;
+}
+
+.heatmap path {
+  fill: #1b3352;
+}
+.heatmap path[data-level="1"] { fill: #3553a8; }
+.heatmap path[data-level="2"] { fill: #5b74e6; }
+.heatmap path[data-level="3"] { fill: #8f9dff; }
+.heatmap path[data-level="4"] { fill: #c9cfff; }
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) .heatmap path { fill: #d3dcea; }
+  :root:not([data-theme="dark"]) .heatmap path[data-level="1"] { fill: #9fb0ef; }
+  :root:not([data-theme="dark"]) .heatmap path[data-level="2"] { fill: #6476e0; }
+  :root:not([data-theme="dark"]) .heatmap path[data-level="3"] { fill: #3446c4; }
+  :root:not([data-theme="dark"]) .heatmap path[data-level="4"] { fill: #1d2a8a; }
+}
+:root[data-theme="light"] .heatmap path { fill: #d3dcea; }
+:root[data-theme="light"] .heatmap path[data-level="1"] { fill: #9fb0ef; }
+:root[data-theme="light"] .heatmap path[data-level="2"] { fill: #6476e0; }
+:root[data-theme="light"] .heatmap path[data-level="3"] { fill: #3446c4; }
+:root[data-theme="light"] .heatmap path[data-level="4"] { fill: #1d2a8a; }
+
+.skyline[data-ready] .heatmap {
+  opacity: 0;
+}
+
+.skyline-canvas {
+  position: absolute;
+  inset: 0;
+  cursor: grab;
+  touch-action: pan-y;
+}
+
+.skyline-canvas[data-dragging] {
+  cursor: grabbing;
+}
+
+.skyline-canvas canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.skyline-tip {
+  position: absolute;
+  z-index: 2;
+  translate: -50% calc(-100% - 14px);
+  padding: 0.45rem 0.7rem;
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  background: var(--night);
+  box-shadow: 0 8px 24px rgb(0 0 0 / 0.25);
+  pointer-events: none;
+  white-space: nowrap;
+  font-size: 0.875rem;
+  display: grid;
+}
+
+.skyline-tip span {
+  color: var(--dim);
+  font-size: 0.8125rem;
+}
+
+.skyline-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.5rem;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 1rem;
+  font-size: 0.9375rem;
+}
+
 /* ───────── Client work ───────── */
 .clients {
   display: grid;

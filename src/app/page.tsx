@@ -4,7 +4,9 @@ import { Hash } from "@/components/Hash";
 import { Header, SECTIONS } from "@/components/Header";
 import { BlockExplorer } from "@/components/BlockExplorer";
 import { Disciplines } from "@/components/Disciplines";
+import { GitHubSkyline } from "@/components/GitHubSkyline";
 import { HashName } from "@/components/HashName";
+import { Heatmap } from "@/components/Heatmap";
 import { MineMessage } from "@/components/MineMessage";
 import { clients } from "@/data/clients";
 import { AREA_LABEL } from "@/data/disciplines";
@@ -12,6 +14,8 @@ import { projects, type Project } from "@/data/projects";
 import { about, profile } from "@/data/profile";
 import { getChain } from "@/lib/chain";
 import { getStatuses, type SiteStatus } from "@/lib/status";
+import { getCalendar } from "@/lib/calendar";
+import { GITHUB_USER, prettyDate, stats as calendarStats } from "@/lib/contributions";
 
 export const revalidate = 300;
 
@@ -64,7 +68,8 @@ function ProjectLinks({ p }: { p: Project }) {
 }
 
 export default async function Home() {
-  const [{ blocks, pending }, statuses] = await Promise.all([getChain(), getStatuses()]);
+  const [{ blocks, pending }, statuses, calendar] = await Promise.all([getChain(), getStatuses(), getCalendar()]);
+  const gh = calendarStats(calendar.days);
   const tip = blocks[blocks.length - 1];
   const statusList = Object.values(statuses);
   const up = statusList.filter((s) => s.state !== "down").length;
@@ -95,6 +100,7 @@ export default async function Home() {
     { id: "github", label: "GitHub profile", hint: "github.com/Shahryartariq", action: profile.links.github },
     { id: "linkedin", label: "LinkedIn", hint: "Profile", action: profile.links.linkedin },
     { id: "x", label: "X (Twitter)", hint: "@M_Shehryartariq", action: profile.links.x },
+    { id: "skyline", label: "GitHub skyline", hint: "Section", action: "#skyline", keywords: "3d contributions commits city" },
     { id: "source", label: "Source of this site", hint: "GitHub", action: REPO, keywords: "code portfolio" },
     { id: "t-light", label: "Light theme", hint: "Theme", action: "theme:light" },
     { id: "t-dark", label: "Dark theme", hint: "Theme", action: "theme:dark" },
@@ -205,6 +211,55 @@ export default async function Home() {
               </>
             }
           />
+        </section>
+
+        <section className="section" id="skyline" aria-labelledby="skyline-title">
+          <div className="wrap">
+            <div className="section-head">
+              <h2 className="section-title" id="skyline-title">
+                A year on GitHub, in 3D
+              </h2>
+              <div>
+                <p className="section-note">
+                  Each building is one day of my last year on GitHub. The taller it is, the more I committed that day.{" "}
+                  {calendar.source === "live"
+                    ? "It updates from my profile every few hours."
+                    : "This is a recent snapshot of my profile."}
+                </p>
+                <dl className="skyline-stats">
+                  <div>
+                    <dt>Contributions</dt>
+                    <dd>{gh.total.toLocaleString("en-US")}</dd>
+                  </div>
+                  <div>
+                    <dt>Active days</dt>
+                    <dd>
+                      {gh.activeDays} of {calendar.days.length}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt>Longest streak</dt>
+                    <dd>{gh.longestStreak} days</dd>
+                  </div>
+                  {gh.busiest && (
+                    <div>
+                      <dt>Busiest day</dt>
+                      <dd>
+                        {gh.busiest.count} on {prettyDate(gh.busiest.date)}
+                      </dd>
+                    </div>
+                  )}
+                </dl>
+              </div>
+            </div>
+            <GitHubSkyline
+              start={calendar.days[0]?.date ?? "2025-01-01"}
+              counts={calendar.days.map((d) => d.count).join(",")}
+              user={GITHUB_USER}
+            >
+              <Heatmap days={calendar.days} />
+            </GitHubSkyline>
+          </div>
         </section>
 
         <section className="section" id="experience" aria-labelledby="chain-title">

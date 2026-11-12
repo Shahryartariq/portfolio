@@ -122,6 +122,33 @@ test.describe("home", () => {
     expect(errors).toEqual([]);
   });
 
+  test("GitHub skyline shows the stats, a 3D city and an STL download", async ({ page, isMobile }) => {
+    await page.goto("/");
+    const section = page.locator("#skyline");
+    await expect(section.getByRole("heading", { name: "A year on GitHub, in 3D" })).toBeVisible();
+    await expect(section.locator(".skyline-stats")).toContainText("1,323");
+    await expect(section.locator(".skyline-stats")).toContainText("91 on Nov 5, 2026");
+    await expect(section.locator(".heatmap path")).toHaveCount(5);
+    await section.scrollIntoViewIfNeeded();
+    await expect(section.locator(".skyline")).toHaveAttribute("data-ready", "true", { timeout: 15_000 });
+    const download = page.waitForEvent("download");
+    await section.getByRole("button", { name: /Download for 3D printing/ }).click();
+    const file = await download;
+    expect(file.suggestedFilename()).toBe("Shahryartariq-github-skyline-2026.stl");
+    if (!isMobile) {
+      // Hover across the city until a building answers with its day.
+      const box = (await section.locator(".skyline-canvas").boundingBox())!;
+      await expect(async () => {
+        for (const fx of [0.9, 0.85, 0.8, 0.7, 0.6, 0.5]) {
+          await page.mouse.move(box.x + box.width * fx, box.y + box.height * 0.55, { steps: 3 });
+          await page.waitForTimeout(150);
+          if (await section.locator(".skyline-tip").count()) break;
+        }
+        await expect(section.locator(".skyline-tip")).toContainText(/contribution/);
+      }).toPass({ timeout: 15_000 });
+    }
+  });
+
   test("projects are tagged by area", async ({ page }) => {
     await page.goto("/");
     const satscope = page.locator("article", { has: page.getByRole("heading", { name: "Satscope" }) });
