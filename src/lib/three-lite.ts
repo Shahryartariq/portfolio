@@ -1,13 +1,23 @@
-// Only the parts of three.js the 3D object uses, so the bundler can drop the rest.
+// Only the parts of three.js the 3D scenes use.
 export {
   AdditiveBlending,
+  AmbientLight,
+  BoxGeometry,
   BufferAttribute,
   BufferGeometry,
+  Color,
+  DirectionalLight,
   Group,
+  InstancedMesh,
+  Matrix4,
+  Mesh,
+  MeshStandardMaterial,
   NormalBlending,
   PerspectiveCamera,
   Points,
+  Raycaster,
   Scene,
   ShaderMaterial,
+  Vector2,
   WebGLRenderer,
 } from "three";
