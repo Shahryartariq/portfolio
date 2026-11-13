@@ -7,7 +7,7 @@ export type PaletteItem = {
   id: string;
   label: string;
   hint: string;
-  /** "#id" scrolls, "http…" opens in a new tab, "copy:" copies, "theme:" switches. */
+  /** "#id" scrolls, "http…" opens in a new tab, "copy:" copies, "theme:" switches, "event:" fires a window event. */
   action: string;
   keywords?: string;
 };
@@ -75,6 +75,8 @@ export function CommandPalette({ items }: { items: PaletteItem[] }) {
     if (a.startsWith("#")) {
       document.getElementById(a.slice(1))?.scrollIntoView();
       history.replaceState(null, "", a);
+    } else if (a.startsWith("event:")) {
+      window.dispatchEvent(new Event(a.slice(6)));
     } else if (a.startsWith("theme:")) {
       applyTheme(a.slice(6) as "light" | "dark" | "system");
     } else {

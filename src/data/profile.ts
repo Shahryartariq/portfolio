@@ -7,7 +7,7 @@ export const profile = {
   email: "shahryartariq57@gmail.com",
   siteUrl: process.env.SITE_URL ?? "https://shehryartariq.vercel.app",
   lede:
-    "I build web apps in TypeScript and Rust: Bitcoin wallet tools, auth systems, document workflows for banks and legal teams. Everything I ship has tests, CI and a live URL.",
+    "I build web apps in TypeScript and Rust: auth systems, in-browser AI tools, Bitcoin wallet tooling and document workflows for legal and trade-finance teams. Everything I ship has tests, CI and a live URL.",
   links: {
     github: "https://github.com/Shahryartariq",
     linkedin: "https://www.linkedin.com/in/muhammadshehryartariq/",
@@ -36,6 +36,11 @@ export const about = {
     },
   ],
   certifications: [
+    "ISC² Certified in Cybersecurity (CC)",
+    "Certified AppSec Practitioner (CAP)",
+    "Certified SOC Core Skills",
+    "HCIA, Cloud and Security track (Huawei)",
+    "Certified Blockchain Practitioner (The SecOps Group)",
     "Next.js 15 & React: The Complete Guide (Udemy)",
     "Git and GitHub (Google)",
     "DevOps and Jenkins Fundamentals (LearnKartS)",

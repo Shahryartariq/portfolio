@@ -1,21 +1,24 @@
 import { CommandPalette, type PaletteItem } from "@/components/CommandPalette";
 import { CopyEmail } from "@/components/CopyEmail";
-import { Hash } from "@/components/Hash";
 import { Header, SECTIONS } from "@/components/Header";
-import { BlockExplorer } from "@/components/BlockExplorer";
 import { Disciplines } from "@/components/Disciplines";
 import { GitHubSkyline } from "@/components/GitHubSkyline";
 import { HashName } from "@/components/HashName";
 import { Heatmap } from "@/components/Heatmap";
-import { MineMessage } from "@/components/MineMessage";
+import { Constellation } from "@/components/Constellation";
+import { Terminal } from "@/components/Terminal";
+import { Timeline } from "@/components/Timeline";
 import { clients } from "@/data/clients";
+import { experience } from "@/data/experience";
 import { AREA_LABEL } from "@/data/disciplines";
 import { projects, type Project } from "@/data/projects";
 import { about, profile } from "@/data/profile";
-import { getChain } from "@/lib/chain";
 import { getStatuses, type SiteStatus } from "@/lib/status";
 import { getCalendar } from "@/lib/calendar";
 import { GITHUB_USER, prettyDate, stats as calendarStats } from "@/lib/contributions";
+import type { WorkInput } from "@/lib/constellation";
+import { span } from "@/lib/dates";
+import type { TermData } from "@/lib/terminal";
 
 export const revalidate = 300;
 
@@ -68,9 +71,8 @@ function ProjectLinks({ p }: { p: Project }) {
 }
 
 export default async function Home() {
-  const [{ blocks, pending }, statuses, calendar] = await Promise.all([getChain(), getStatuses(), getCalendar()]);
+  const [statuses, calendar] = await Promise.all([getStatuses(), getCalendar()]);
   const gh = calendarStats(calendar.days);
-  const tip = blocks[blocks.length - 1];
   const statusList = Object.values(statuses);
   const up = statusList.filter((s) => s.state !== "down").length;
   const checkedAt = statusList[0]?.checkedAt;
@@ -101,13 +103,37 @@ export default async function Home() {
     { id: "linkedin", label: "LinkedIn", hint: "Profile", action: profile.links.linkedin },
     { id: "x", label: "X (Twitter)", hint: "@M_Shehryartariq", action: profile.links.x },
     { id: "skyline", label: "GitHub skyline", hint: "Section", action: "#skyline", keywords: "3d contributions commits city" },
+    { id: "map", label: "Work map", hint: "Section", action: "#map", keywords: "3d constellation skills tools graph" },
+    { id: "terminal", label: "Open the terminal", hint: "Press `", action: "event:portfolio:terminal", keywords: "command line cli shell" },
     { id: "source", label: "Source of this site", hint: "GitHub", action: REPO, keywords: "code portfolio" },
     { id: "t-light", label: "Light theme", hint: "Theme", action: "theme:light" },
     { id: "t-dark", label: "Dark theme", hint: "Theme", action: "theme:dark" },
     { id: "t-system", label: "Match my device", hint: "Theme", action: "theme:system", keywords: "system auto" },
   ];
 
-  const current = blocks.find((b) => b.kind === "job" && b.end === null);
+  const current = experience.find((r) => r.kind === "job" && r.end === null);
+
+  // The map: my own projects plus client work, each with its areas and tools.
+  const work: WorkInput[] = [
+    ...projects.map((p) => ({ id: p.slug, label: p.name, areas: p.areas, stack: p.stack, href: p.url })),
+    { id: "srb", label: "SRB platform", areas: ["security", "fullstack"] as WorkInput["areas"], stack: clients[0].stack },
+    { id: "lc", label: "LC Management", areas: ["fullstack"] as WorkInput["areas"], stack: clients[1].stack },
+  ];
+
+  const term: TermData = {
+    name: profile.name,
+    role: profile.role,
+    now: current ? `Now: ${current.title} at ${current.org}` : "",
+    location: profile.location,
+    email: profile.email,
+    links: profile.links,
+    about: about.paragraphs,
+    projects: projects.map(({ slug, name, url, repo, pitch, stack }) => ({ slug, name, url, repo, pitch, stack })),
+    experience: [...experience].reverse().map((r) => ({ when: span(r.start, r.end), org: r.org, title: r.title })),
+    education: about.education.map((e) => `${e.degree}, ${e.school}, ${e.years}. ${e.note}`),
+    skills: about.stack,
+    sections: [...SECTIONS],
+  };
   const person = {
     "@type": "Person",
     "@id": `${profile.siteUrl}/#person`,
@@ -190,9 +216,7 @@ export default async function Home() {
           <Disciplines
             intro={
               <>
-                <p className="hero-role">
-                  Full-stack engineer working across AI, blockchain and security.
-                </p>
+                <p className="hero-role">Full-stack developer. I also work in AI, blockchain and security.</p>
                 <p className="hero-lede">{profile.lede}</p>
                 <p className="actions">
                   <a className="btn btn-primary" href={`mailto:${profile.email}`}>
@@ -206,7 +230,7 @@ export default async function Home() {
                   </a>
                 </p>
                 <p className="hero-now dim">
-                  Now: {tip.title} at {tip.org}, Islamabad. {up} of {projects.length} of my projects are live right now.
+                  {current ? `Now: ${current.title} at ${current.org}, Islamabad.` : "Based in Islamabad."}
                 </p>
               </>
             }
@@ -221,10 +245,7 @@ export default async function Home() {
               </h2>
               <div>
                 <p className="section-note">
-                  Each building is one day of my last year on GitHub. The taller it is, the more I committed that day.{" "}
-                  {calendar.source === "live"
-                    ? "It updates from my profile every few hours."
-                    : "This is a recent snapshot of my profile."}
+                  One building per day. Taller means more commits.
                 </p>
                 <dl className="skyline-stats">
                   <div>
@@ -262,17 +283,14 @@ export default async function Home() {
           </div>
         </section>
 
-        <section className="section" id="experience" aria-labelledby="chain-title">
+        <section className="section" id="experience" aria-labelledby="experience-title">
           <div className="wrap">
             <div className="section-head">
-              <h2 className="section-title" id="chain-title">
+              <h2 className="section-title" id="experience-title">
                 Experience
               </h2>
-              <p className="section-note">
-                From my first degree to my current job, oldest on the left. Pick a step to see what I worked on there.
-              </p>
             </div>
-            <BlockExplorer blocks={blocks} pending={pending} />
+            <Timeline roles={experience} />
           </div>
         </section>
 
@@ -280,12 +298,11 @@ export default async function Home() {
           <div className="wrap">
             <div className="section-head">
               <h2 className="section-title" id="projects-title">
-                Shipped and running
+                Projects
               </h2>
               <div>
                 <p className="section-note">
-                  Seven products I designed, built and deployed myself, across all four areas. Each has tests, CI and a
-                  public repo. The status next to each one is checked by this site&rsquo;s server every five minutes.
+                  Seven products I built and deployed on my own. Each has tests, CI and a public repo.
                 </p>
                 {checkedAt && (
                   <p className="status-line">
@@ -343,11 +360,10 @@ export default async function Home() {
           <div className="wrap">
             <div className="section-head">
               <h2 className="section-title" id="clients-title">
-                Work for clients
+                Client work
               </h2>
               <p className="section-note">
-                Built at AmeeqCode. The code belongs to the clients, so there are no repos to show, but I&rsquo;m happy
-                to walk through how they work.
+                Built at AmeeqCode. The code belongs to the clients, so there are no repos to show.
               </p>
             </div>
             <div className="clients">
@@ -370,6 +386,18 @@ export default async function Home() {
                 </article>
               ))}
             </div>
+          </div>
+        </section>
+
+        <section className="section" id="map" aria-labelledby="map-title">
+          <div className="wrap">
+            <div className="section-head">
+              <h2 className="section-title" id="map-title">
+                How my work connects
+              </h2>
+              <p className="section-note">Projects, the tools behind them and the areas they belong to, as one map.</p>
+            </div>
+            <Constellation work={work} />
           </div>
         </section>
 
@@ -445,7 +473,6 @@ export default async function Home() {
                 X
               </a>
             </p>
-            <MineMessage to={profile.email} prev={tip.hash} height={tip.height + 1} />
           </div>
         </section>
       </main>
@@ -460,12 +487,10 @@ export default async function Home() {
               Source on GitHub
             </a>
           </p>
-          <p>
-            Tip at height {tip.height}: <Hash value={tip.hash} head={10} tail={4} />
-          </p>
         </div>
       </footer>
       <CommandPalette items={palette} />
+      <Terminal data={term} />
     </>
   );
 }

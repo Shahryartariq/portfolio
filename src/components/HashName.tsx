@@ -54,8 +54,7 @@ export function HashName({ name }: { name: string }) {
       colors = { ink: cssVar("--ink"), night: cssVar("--night"), accent: cssVar("--accent") };
       const probe = host.querySelector<HTMLElement>(".hash-name-fallback");
       if (probe) displayFamily = getComputedStyle(probe).fontFamily;
-      const mono = document.querySelector<HTMLElement>(".mono");
-      monoFamily = mono ? getComputedStyle(mono).fontFamily : "ui-monospace, monospace";
+      monoFamily = cssVar("--mono") || "ui-monospace, monospace";
     };
 
     const setFont = (c: CanvasRenderingContext2D, px: number) => {

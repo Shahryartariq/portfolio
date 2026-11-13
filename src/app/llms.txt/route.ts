@@ -1,8 +1,8 @@
-import { chainData } from "@/data/chain";
+import { experience } from "@/data/experience";
 import { clients } from "@/data/clients";
 import { projects } from "@/data/projects";
 import { about, profile } from "@/data/profile";
-import { span } from "@/lib/chain-core";
+import { span } from "@/lib/dates";
 
 export const dynamic = "force-static";
 
@@ -19,8 +19,7 @@ export function GET() {
     `- LinkedIn: ${profile.links.linkedin}`,
     "",
     "## Experience",
-    ...[...chainData]
-      .filter((d) => !d.pending)
+    ...[...experience]
       .reverse()
       .map((d) => `- ${d.org}, ${d.title} (${span(d.start, d.end)}): ${d.summary}`),
     "",

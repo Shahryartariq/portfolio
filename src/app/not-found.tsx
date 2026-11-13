@@ -6,8 +6,8 @@ export default function NotFound() {
     <>
       <Header />
       <main id="main" className="wrap lost">
-        <h1 className="section-title">No block at this address</h1>
-        <p>This page doesn&rsquo;t exist. The career chain, projects and contact details are all on the home page.</p>
+        <h1 className="section-title">This page doesn&rsquo;t exist</h1>
+        <p>My projects, experience and contact details are all on the home page.</p>
         <p className="actions">
           <Link className="btn btn-primary" href="/">
             Go to the home page

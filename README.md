@@ -7,18 +7,17 @@ My portfolio as a full-stack engineer working across AI, blockchain and security
 ## What makes it different
 
 - **A name made of hashes.** The hero draws my name on a canvas, with hex digits cut into the letters that keep re-rolling. Under the cursor they settle to zeros. The real `<h1>` has the same size and line breaks, so nothing shifts when the canvas takes over.
-- **A 3D object for the four areas I work in.** A cloud of points (three.js) morphs as you scroll: a sphere for the intro, then a browser window (full-stack), a neural network (AI), linked blocks (blockchain) and a shield with a keyhole (security). You can play with it: points scatter away from the cursor and light up, dragging spins it with momentum, and a click scatters it before it pulls back together. It renders in a Web Worker on an OffscreenCanvas, so the page stays responsive (falls back to the main thread where OffscreenCanvas isn't supported), loads when the browser is idle, pauses off screen, and holds still for reduced-motion users.
-- **GitHub skyline.** My last year of GitHub contributions as a 3D city (three.js, instanced meshes, in a Web Worker): one building per day, height and colour by count. It rises in when you scroll to it, turns when you drag it, shows the day and count when you hover a building, and can be downloaded as an STL file for 3D printing. The data is read from my public GitHub profile every 6 hours, with a saved snapshot as a fallback; a flat heatmap shows first and stays if WebGL isn't available.
-- **Live project status.** The server checks each of my seven live projects every five minutes. Projects are tagged by area.
-- **A tamper-evident experience timeline.** Each step is SHA-256 hashed with the step before it, mined at build time. Visitors can recheck the whole timeline in their browser with Web Crypto.
-- **Contact with proof of work.** Before the email opens, the browser does a second or two of Hashcash-style work on the message in a Web Worker.
+- **A 3D object for the four areas I work in.** A cloud of points (three.js) morphs as you scroll: a sphere for the intro, then a browser window (full-stack), a neural network (AI), linked blocks (blockchain) and a shield with a keyhole (security). Points scatter away from the cursor, dragging spins it, a click scatters it. It renders in a Web Worker on an OffscreenCanvas.
+- **GitHub skyline.** My last year of GitHub contributions as a 3D city: one building per day, height and colour by count. Drag to turn it, hover a building for the day, download it as an STL for 3D printing. Read from my public profile every 6 hours.
+- **Work map.** My projects, the tools behind them and the areas they belong to, as a 3D map you can turn. Pick a project to light up everything it's built with. Drawn on a 2D canvas with its own projection and label placement, so it needs no 3D library.
+- **Terminal mode.** Press <kbd>`</kbd> (or the terminal button) and the site becomes a command line: `whoami`, `ls`, `cat projects/satscope.md`, `open authforge`, `goto projects`, `theme light`, `sudo hire-me`, with history and Tab completion.
+- **Live project status.** The server checks each of my seven live projects every five minutes.
 - **Command palette** (<kbd>Ctrl</kbd>/<kbd>⌘</kbd> + <kbd>K</kbd>), dark and light themes with no flash, responsive down to small phones, axe-checked in both themes.
 
 ## SEO
 
 - Title, description, canonical, Open Graph and X cards with generated images, robots with `max-image-preview:large`.
 - Structured data: `ProfilePage` with a `Person` (alternate spellings of my name, current job, education, profiles), `WebSite`, and the live projects as `SoftwareSourceCode`.
-- Every career block's details are in the HTML, even when its tab is closed.
 - `sitemap.xml`, `robots.txt`, `manifest.webmanifest`, `/llms.txt` (plain-text summary for AI assistants).
 - The hero heading has the same size and line breaks as the canvas, so there's no layout shift (CLS 0).
 - Optional: `GOOGLE_SITE_VERIFICATION`, `BING_SITE_VERIFICATION`, `GA_MEASUREMENT_ID` (see `.env.example`).
@@ -46,12 +45,12 @@ STATUS_SAMPLE_DATA=1 npm run build && npm run test:e2e
 | What | Where |
 | --- | --- |
 | Name, intro, links, about, education, skills | `src/data/profile.ts` |
-| Experience timeline (jobs, studies, highlights) | `src/data/chain.ts` |
+| Experience (jobs, studies, freelance) | `src/data/experience.ts` |
 | The four areas (text, proof points, tools) | `src/data/disciplines.ts` |
 | Live projects | `src/data/projects.ts` |
 | Client work | `src/data/clients.ts` |
 
-To add a role, append it to the end of `src/data/chain.ts`. An entry with `pending: true` is shown above the chain as unconfirmed and isn't mined.
+To add a role, append it to the end of `src/data/experience.ts`.
 
 ## License
 

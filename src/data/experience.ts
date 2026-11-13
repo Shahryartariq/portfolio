@@ -1,11 +1,4 @@
-/**
- * The career chain, oldest first. Each entry becomes a block that is mined
- * (proof of work, see src/lib/chain.ts) when the site is built, so every
- * hash and "prev" link on the page is real and can be checked.
- *
- * To add a role: append an entry. Never edit an old entry without expecting
- * every later hash to change — that is the point.
- */
+/** Jobs, studies and freelance work, oldest first. */
 export type Tx = {
   title: string;
   detail?: string;
@@ -13,9 +6,9 @@ export type Tx = {
   href?: string;
 };
 
-export type BlockData = {
+export type Role = {
   id: string;
-  kind: "job" | "study" | "freelance" | "build";
+  kind: "job" | "study" | "freelance";
   title: string;
   org: string;
   start: string; // YYYY-MM
@@ -23,11 +16,9 @@ export type BlockData = {
   place: string;
   summary: string;
   txs: Tx[];
-  /** Shown as unconfirmed until the details are filled in. */
-  pending?: boolean;
 };
 
-export const chainData: BlockData[] = [
+export const experience: Role[] = [
   {
     id: "sargodha",
     kind: "study",
@@ -141,22 +132,6 @@ export const chainData: BlockData[] = [
         title: "Next.js multi-zone monorepo",
         detail: "Turborepo setup that let several teams ship parts of one product independently.",
       },
-    ],
-  },
-  {
-    id: "builds",
-    kind: "build",
-    title: "Seven products, shipped",
-    org: "Own work",
-    start: "2025-11",
-    end: "2026-11",
-    place: "github.com/Shahryartariq",
-    summary: "Each one live, tested and open source.",
-    txs: [
-      { title: "Satscope", detail: "Bitcoin wallet checkup with one-click PSBT fixes.", href: "https://satscope.vercel.app" },
-      { title: "Authforge", detail: "Production auth starter for Next.js.", href: "https://getauthforge.vercel.app" },
-      { title: "Hashwire and Tensorwire", detail: "Crypto and AI news, grouped by network and lab.", href: "https://tensorwire.vercel.app" },
-      { title: "Playpace, Skycast, TidyText", detail: "Small tools people use every day.", href: "https://getplaypace.vercel.app" },
     ],
   },
   {

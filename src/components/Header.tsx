@@ -1,5 +1,6 @@
 import { profile } from "@/data/profile";
 import { SearchButton } from "./SearchButton";
+import { TerminalButton } from "./Terminal";
 import { ThemeToggle } from "./ThemeToggle";
 
 export const SECTIONS = [
@@ -28,6 +29,7 @@ export function Header() {
         </nav>
         <div className="top-actions">
           <SearchButton />
+          <TerminalButton />
           <ThemeToggle />
         </div>
       </div>
