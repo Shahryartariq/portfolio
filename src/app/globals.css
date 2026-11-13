@@ -1446,11 +1446,7 @@ div.slot-btn {
 .skyline-stage {
   position: relative;
   height: clamp(260px, 42vw, 540px);
-  border: 1px solid var(--rule);
-  border-radius: 4px;
-  background:
-    radial-gradient(ellipse at 50% 60%, color-mix(in srgb, var(--accent) 12%, transparent), transparent 65%),
-    var(--deck);
+  /* No panel: the city sits straight on the page background. */
   overflow: hidden;
 }
 
