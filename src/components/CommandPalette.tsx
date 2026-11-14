@@ -73,7 +73,14 @@ export function CommandPalette({ items }: { items: PaletteItem[] }) {
     }
     close();
     if (a.startsWith("#")) {
-      document.getElementById(a.slice(1))?.scrollIntoView();
+      const target = document.getElementById(a.slice(1));
+      if (target) {
+        // Closing the dialog puts focus back on whatever opened it. Move it to the
+        // section instead, so the next Tab continues from where the page now is.
+        if (!target.hasAttribute("tabindex")) target.setAttribute("tabindex", "-1");
+        target.focus({ preventScroll: true });
+        target.scrollIntoView();
+      }
       history.replaceState(null, "", a);
     } else if (a.startsWith("theme:")) {
       applyTheme(a.slice(6) as "light" | "dark" | "system");

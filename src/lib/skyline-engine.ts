@@ -20,6 +20,8 @@ export type Skyline = {
   pointer(x: number | null, y?: number): void;
   drag(dx: number, dy: number): void;
   release(): void;
+  /** Turns the city by a fixed step, with no momentum. Used by the arrow keys. */
+  nudge(dx: number, dy: number): void;
   rise(): void;
   resize(width: number, height: number, dpr: number): void;
   theme(light: boolean): void;
@@ -213,6 +215,13 @@ export function createSkyline(
     release() {
       rot.dragging = false;
       rot.vy = Math.max(-0.1, Math.min(0.1, rot.vy));
+    },
+    nudge(dx, dy) {
+      rot.touched = true;
+      rot.vy = 0;
+      rot.vx = 0;
+      rot.y += dx;
+      rot.x += dy;
     },
     rise() {
       if (o.still || rising || riseStart !== Infinity) return;

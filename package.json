@@ -2,7 +2,7 @@
   "name": "portfolio",
   "version": "1.0.0",
   "private": true,
-  "description": "Muhammad Shehryar Tariq's portfolio: a career chain mined at build time and live status for every shipped project.",
+  "description": "Muhammad Shehryar Tariq's portfolio: four areas of work, a 3D GitHub skyline and live status for every shipped project.",
   "license": "MIT",
   "engines": {
     "node": ">=22"
@@ -18,7 +18,6 @@
   },
   "dependencies": {
     "@fontsource-variable/mona-sans": "^5.3.0",
-    "geist": "^1.9.2",
     "next": "16.4.6",
     "react": "19.3.1",
     "react-dom": "19.3.1",
@@ -35,5 +34,10 @@
     "eslint-config-next": "16.4.6",
     "typescript": "5.9.3",
     "vitest": "^5.1.0"
+  },
+  "overrides": {
+    "@typescript-eslint/typescript-estree": {
+      "minimatch": "^11.0.8"
+    }
   }
 }

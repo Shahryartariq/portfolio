@@ -1757,6 +1757,136 @@ div.slot-btn {
   max-width: 34rem;
 }
 
+/* ───────── Small fixes from the flow audit ───────── */
+.field input[aria-invalid="true"],
+.field textarea[aria-invalid="true"] {
+  border-color: var(--down);
+}
+
+.miner-hint {
+  margin-top: 0.9rem;
+  font-size: 0.875rem;
+}
+
+.miner-done:focus {
+  outline: none;
+}
+
+/* Footer links were 19px tall: too small a target on phones. */
+.foot a {
+  display: inline-block;
+  padding-block: 0.3rem;
+}
+
+.skyline-canvas:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+
+/* Sections get focus when the command palette jumps to them; they don't need a ring. */
+section[tabindex="-1"]:focus {
+  outline: none;
+}
+
+/* ───────── Print and "Save as PDF" ───────── */
+@media print {
+  :root,
+  :root[data-theme] {
+    --night: #ffffff;
+    --deck: #ffffff;
+    --deck-hi: #ffffff;
+    --rule: #c9d4e1;
+    --ink: #0a1a2f;
+    --dim: #3d4f66;
+    --accent: #2f43c7;
+    --accent-ink: #ffffff;
+    --live: #0b8a58;
+    --slow: #9a5c00;
+    --down: #c2312f;
+    --shadow: none;
+    --a-fullstack: #1650b8;
+    --a-ai: #6630b8;
+    --a-blockchain: #7d4c00;
+    --a-security: #076457;
+    color-scheme: light;
+  }
+
+  html {
+    background: #ffffff;
+  }
+
+  .top,
+  .skip,
+  .stage-visual,
+  .skyline-stage,
+  .skyline-bar,
+  .strip,
+  .integrity,
+  .block-proof-wrap,
+  .panel-height,
+  .miner,
+  .palette,
+  .hash-name canvas,
+  .js-only {
+    display: none !important;
+  }
+
+  .hash-name[data-ready="true"] .hash-name-fallback {
+    color: var(--ink);
+  }
+
+  .panel[hidden] {
+    display: block !important;
+  }
+
+  .panel + .panel {
+    margin-top: 1rem;
+  }
+
+  .section {
+    padding-block: 1.5rem;
+  }
+
+  /* The four areas are a scroll story on screen; on paper they are a plain list. */
+  .stage {
+    display: block;
+  }
+
+  .stage-step,
+  .stage-intro {
+    min-height: 0;
+    padding-block: 0.75rem;
+  }
+
+  /* Filled buttons lose their background on paper, so give them ink and an outline. */
+  .btn,
+  .btn-primary {
+    background: none;
+    color: var(--ink);
+    border: 1px solid var(--rule);
+  }
+
+  .stage-step {
+    break-inside: avoid;
+  }
+
+  .feature,
+  .row,
+  .client,
+  .panel,
+  .area {
+    break-inside: avoid;
+  }
+
+  /* On paper a link is only useful if you can read where it goes. */
+  .links a[href^="http"]::after,
+  .foot a[href^="http"]::after {
+    content: " (" attr(href) ")";
+    font-weight: 400;
+    color: var(--dim);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;

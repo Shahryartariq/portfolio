@@ -106,6 +106,7 @@ export function GitHubSkyline({
               if (m.type === "pointer") sky.pointer(m.x, m.y);
               else if (m.type === "drag") sky.drag(m.dx, m.dy);
               else if (m.type === "release") sky.release();
+              else if (m.type === "nudge") sky.nudge(m.dx, m.dy);
               else if (m.type === "rise") sky.rise();
               else if (m.type === "resize") sky.resize(m.width, m.height, m.dpr);
               else if (m.type === "theme") sky.theme(m.light);
@@ -181,6 +182,15 @@ export function GitHubSkyline({
     const onLeave = () => {
       if (!down) driver.current?.send({ type: "pointer", x: null });
     };
+    // Arrow keys turn the city, so it isn't mouse-only.
+    const onKey = (e: KeyboardEvent) => {
+      const step = { ArrowLeft: [-0.12, 0], ArrowRight: [0.12, 0], ArrowUp: [0, -0.06], ArrowDown: [0, 0.06] }[e.key];
+      if (!step || !driver.current) return;
+      e.preventDefault();
+      driver.current.send({ type: "pointer", x: null });
+      driver.current.send({ type: "nudge", dx: step[0], dy: step[1] });
+    };
+    el.addEventListener("keydown", onKey);
     el.addEventListener("pointermove", onMove);
     el.addEventListener("pointerdown", onDown);
     el.addEventListener("pointerup", onUp);
@@ -197,6 +207,7 @@ export function GitHubSkyline({
       near.disconnect();
       seen.disconnect();
       ro.disconnect();
+      el.removeEventListener("keydown", onKey);
       el.removeEventListener("pointermove", onMove);
       el.removeEventListener("pointerdown", onDown);
       el.removeEventListener("pointerup", onUp);
@@ -226,7 +237,13 @@ export function GitHubSkyline({
     <div className="skyline" data-ready={ready || undefined} data-failed={failed || undefined}>
       <div className="skyline-stage">
         {children}
-        <div className="skyline-canvas" ref={host} />
+        <div
+          className="skyline-canvas"
+          ref={host}
+          role="group"
+          tabIndex={ready ? 0 : -1}
+          aria-label="3D city of my GitHub year. Use the arrow keys to turn it."
+        />
         {day && tip && (
           <p className="skyline-tip" role="status" style={{ left: tip.x, top: tip.y }}>
             <b>
@@ -238,7 +255,11 @@ export function GitHubSkyline({
       </div>
       <div className="skyline-bar">
         <p className="dim">
-          {ready ? "Drag to turn the city. Hover a building to see the day." : "One building per day."}
+          {ready
+            ? "Drag or use the arrow keys to turn the city. Hover a building to see the day."
+            : failed
+              ? "The 3D view couldn\u2019t start in this browser, so this is the flat calendar."
+              : "One building per day."}
         </p>
         <button type="button" className="btn" onClick={download}>
           Download for 3D printing (STL)
