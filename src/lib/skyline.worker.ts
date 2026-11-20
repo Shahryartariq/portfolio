@@ -6,6 +6,7 @@ export type SkylineIn =
   | { type: "pointer"; x: number | null; y?: number }
   | { type: "drag"; dx: number; dy: number }
   | { type: "release" }
+  | { type: "nudge"; dx: number; dy: number }
   | { type: "rise" }
   | { type: "resize"; width: number; height: number; dpr: number }
   | { type: "theme"; light: boolean }
@@ -36,6 +37,7 @@ self.onmessage = (e: MessageEvent<SkylineIn>) => {
   if (m.type === "pointer") sky.pointer(m.x, m.y);
   else if (m.type === "drag") sky.drag(m.dx, m.dy);
   else if (m.type === "release") sky.release();
+  else if (m.type === "nudge") sky.nudge(m.dx, m.dy);
   else if (m.type === "rise") sky.rise();
   else if (m.type === "resize") sky.resize(m.width, m.height, m.dpr);
   else if (m.type === "theme") sky.theme(m.light);

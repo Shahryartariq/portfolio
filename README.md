@@ -23,6 +23,18 @@ My portfolio as a full-stack engineer working across AI, blockchain and security
 - The hero heading has the same size and line breaks as the canvas, so there's no layout shift (CLS 0).
 - Optional: `GOOGLE_SITE_VERIFICATION`, `BING_SITE_VERIFICATION`, `GA_MEASUREMENT_ID` (see `.env.example`).
 
+## Security and upkeep
+
+- Headers on every response: a content security policy that allows only this site (analytics hosts are added only when an ID is set), HSTS, `nosniff`, no framing, `Cross-Origin-Opener-Policy`, and a locked-down permissions policy.
+- [`/.well-known/security.txt`](https://shehryartariq.vercel.app/.well-known/security.txt) says where to report a problem.
+- CI runs lint, types, unit tests, a build, browser tests and `npm audit` on what ships. Actions are pinned to commit hashes, and Dependabot proposes updates once a month.
+
+## Works without the extras
+
+- **No JavaScript:** every job in the experience section is shown, and controls that need scripts are hidden instead of left dead.
+- **Keyboard:** the 3D city turns with the arrow keys; the command palette moves focus to the section it jumps to.
+- **Print / Save as PDF:** dark text on white, all experience expanded, link addresses printed next to project links.
+
 ## Tech
 
 Next.js 16 (App Router, static with 5-minute revalidation) · React 19 · TypeScript (strict) · three.js · hand-written CSS · Mona Sans and Geist Mono, both self-hosted · Vitest · Playwright · GitHub Actions.

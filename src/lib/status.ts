@@ -12,6 +12,16 @@ export type SiteStatus = {
 const TIMEOUT_MS = 6000;
 const SLOW_MS = 2500;
 
+/**
+ * Whether a response means the site is serving visitors. A 404 or 410 means the
+ * deployment is gone, so it is down. 401, 403 and 429 mean the site answered but
+ * turned this automated check away, which still counts as reachable.
+ */
+export function reachable(status: number): boolean {
+  if (status >= 200 && status < 400) return true;
+  return status === 401 || status === 403 || status === 429;
+}
+
 export function classify(ok: boolean, ms: number | null): SiteStatus["state"] {
   if (!ok || ms === null) return "down";
   return ms > SLOW_MS ? "slow" : "up";
@@ -30,7 +40,7 @@ async function check(slug: string, url: string): Promise<SiteStatus> {
       headers: { "user-agent": "shehryartariq.vercel.app status check" },
     });
     ms = Math.round(performance.now() - started);
-    ok = res.status < 500;
+    ok = reachable(res.status);
   } catch {
     ok = false;
   }

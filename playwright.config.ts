@@ -9,6 +9,7 @@ export default defineConfig({
   reporter: process.env.CI ? "github" : "list",
   use: {
     baseURL: `http://localhost:${port}`,
+    trace: "on-first-retry",
     ...(process.env.PW_CHROME ? { channel: "chrome" } : {}),
   },
   projects: [

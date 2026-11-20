@@ -6,7 +6,9 @@ import { filterItems, type PaletteItem } from "@/components/CommandPalette";
 import { chainData } from "@/data/chain";
 import { clients } from "@/data/clients";
 import { projects } from "@/data/projects";
-import { classify, getStatuses } from "@/lib/status";
+import { SECTIONS } from "@/components/Header";
+import { asText, looksLikeEmail, mailto, MESSAGE_MAX, type MessageBlock } from "@/lib/mine-message";
+import { classify, getStatuses, reachable } from "@/lib/status";
 
 describe("content", () => {
   it("has unique project slugs with https links", () => {
@@ -41,6 +43,12 @@ describe("status", () => {
     expect(classify(true, null)).toBe("down");
   });
 
+  it("treats a missing deployment as down, and a blocked check as reachable", () => {
+    expect([200, 204, 301, 308].every(reachable)).toBe(true);
+    expect([401, 403, 429].every(reachable)).toBe(true);
+    expect([404, 410, 500, 502, 503].some(reachable)).toBe(false);
+  });
+
   it("returns one status per project from sample data", async () => {
     process.env.STATUS_SAMPLE_DATA = "1";
     const s = await getStatuses();
@@ -73,5 +81,39 @@ describe("message block", () => {
     expect(body).toContain("nonce  42");
     expect(body).toContain("reply  a@acme.io");
     expect(JSON.parse(messagePayload(block, 3))).toMatchObject({ height: 7, prev: "0000ab", nonce: 3 });
+  });
+});
+
+describe("navigation", () => {
+  it("lists every section once, with the skyline included", () => {
+    const ids = SECTIONS.map((s) => s.id);
+    expect(new Set(ids).size).toBe(ids.length);
+    expect(ids).toEqual(["fullstack", "skyline", "experience", "projects", "clients", "about", "contact"]);
+  });
+});
+
+describe("contact message", () => {
+  const block: MessageBlock = {
+    height: 8,
+    prev: "0".repeat(64),
+    from: "Ayesha",
+    email: "",
+    message: "x".repeat(MESSAGE_MAX),
+    time: "2026-11-13T00:00:00.000Z",
+  };
+
+  it("accepts real addresses and rejects broken ones", () => {
+    expect(["a@b.co", "first.last+tag@sub.example.org"].every(looksLikeEmail)).toBe(true);
+    expect(["not-an-email", "a@b", "a b@c.com", "@c.com", "a@.com "].some(looksLikeEmail)).toBe(false);
+  });
+
+  it("keeps the longest allowed message inside what mail apps accept in a link", () => {
+    expect(mailto("me@example.com", block, 123456, "0000" + "a".repeat(60)).length).toBeLessThan(2000);
+  });
+
+  it("offers the same email as plain text", () => {
+    const text = asText("me@example.com", { ...block, message: "Hello", email: "a@b.co" }, 7, "0000ab");
+    expect(text).toMatch(/^To: me@example\.com\nSubject: Message from Ayesha\n\nHello\n/);
+    expect(text).toContain("reply  a@b.co");
   });
 });

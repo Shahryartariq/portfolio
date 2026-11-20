@@ -30,7 +30,7 @@ export default async function OpenGraphImage() {
         <div style={{ display: "flex", flexDirection: "column" }}>
           <div style={{ fontSize: 82, fontWeight: 800, letterSpacing: -3, lineHeight: 1 }}>{profile.name}</div>
           <div style={{ fontSize: 34, marginTop: 22, color: "#97aac0" }}>
-            Full-stack engineer. TypeScript and Rust, Web3, secure systems.
+            Full-stack engineer working across AI, blockchain and security.
           </div>
         </div>
         <div style={{ display: "flex", alignItems: "center" }}>

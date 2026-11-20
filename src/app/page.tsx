@@ -78,7 +78,13 @@ export default async function Home() {
   const rest = projects.filter((p) => !p.featured);
 
   const palette: PaletteItem[] = [
-    ...SECTIONS.map((s) => ({ id: `s-${s.id}`, label: s.label, hint: "Section", action: `#${s.id}` })),
+    ...SECTIONS.map((s) => ({
+      id: `s-${s.id}`,
+      label: s.label,
+      hint: "Section",
+      action: `#${s.id}`,
+      ...("keywords" in s ? { keywords: s.keywords } : {}),
+    })),
     ...projects.map((p) => ({
       id: `p-${p.slug}`,
       label: p.name,
@@ -100,7 +106,6 @@ export default async function Home() {
     { id: "github", label: "GitHub profile", hint: "github.com/Shahryartariq", action: profile.links.github },
     { id: "linkedin", label: "LinkedIn", hint: "Profile", action: profile.links.linkedin },
     { id: "x", label: "X (Twitter)", hint: "@M_Shehryartariq", action: profile.links.x },
-    { id: "skyline", label: "GitHub skyline", hint: "Section", action: "#skyline", keywords: "3d contributions commits city" },
     { id: "source", label: "Source of this site", hint: "GitHub", action: REPO, keywords: "code portfolio" },
     { id: "t-light", label: "Light theme", hint: "Theme", action: "theme:light" },
     { id: "t-dark", label: "Dark theme", hint: "Theme", action: "theme:dark" },
@@ -136,7 +141,22 @@ export default async function Home() {
       credentialCategory: "degree",
       name: e.degree,
     })),
-    knowsAbout: ["TypeScript", "Next.js", "React", "Rust", "Node.js", "PostgreSQL", "Bitcoin", "Web3", "Application security"],
+    knowsAbout: [
+      "Full-stack web development",
+      "TypeScript",
+      "Next.js",
+      "React",
+      "Rust",
+      "Node.js",
+      "PostgreSQL",
+      "Artificial intelligence",
+      "Federated learning",
+      "Blockchain",
+      "Bitcoin",
+      "Web3",
+      "Cyber security",
+      "Application security",
+    ],
     sameAs: [profile.links.github, profile.links.linkedin, profile.links.x],
   };
   const jsonLd = {
@@ -148,7 +168,9 @@ export default async function Home() {
         url: profile.siteUrl,
         name: `${profile.name} | Full-Stack Engineer`,
         inLanguage: "en",
-        dateModified: new Date().toISOString(),
+        dateCreated: "2026-11-11",
+        // The newest day in the contribution calendar: it only moves when the page's content does.
+        dateModified: calendar.days.at(-1)?.date ?? "2026-11-11",
         mainEntity: { "@id": `${profile.siteUrl}/#person` },
       },
       person,
@@ -182,7 +204,11 @@ export default async function Home() {
 
   return (
     <>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      {/* "<" is escaped so no value can ever close the script tag early. */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }}
+      />
       <Header />
       <main id="main">
         <section className="hero wrap" id="top" aria-labelledby="name">
@@ -206,7 +232,10 @@ export default async function Home() {
                   </a>
                 </p>
                 <p className="hero-now dim">
-                  Now: {tip.title} at {tip.org}, Islamabad. {up} of {projects.length} of my projects are live right now.
+                  Now: {tip.title} at {tip.org}, Islamabad.{" "}
+                  {up === projects.length
+                    ? `All ${projects.length} of my projects are live right now.`
+                    : `${up} of my ${projects.length} projects are live right now.`}
                 </p>
               </>
             }
