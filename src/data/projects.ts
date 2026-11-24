@@ -74,6 +74,17 @@ export const projects: Project[] = [
     year: 2026,
   },
   {
+    slug: "plainplay",
+    name: "Plainplay",
+    url: "https://plainplay.vercel.app",
+    repo: "https://github.com/Shahryartariq/plainplay",
+    pitch: "YouTube without the rabbit hole: search and watch with no feed, no recommendations and no comments.",
+    detail: "Covers YouTube's pause and end-screen suggestions, resumes where you stopped, and keeps the API key on the server with cached, rate-limited searches.",
+    stack: ["Next.js", "YouTube API", "Playwright"],
+    areas: ["fullstack"],
+    year: 2026,
+  },
+  {
     slug: "skycast",
     name: "Skycast",
     url: "https://getskycast.vercel.app",
