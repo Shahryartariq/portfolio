@@ -12,7 +12,7 @@ test.describe("home", () => {
     await expect(page.locator(".hero-now")).toContainText("Full Stack Developer at VisionTech");
     await expect(page.getByRole("tab")).toHaveCount(8);
     await expect(page.getByTestId("pending-block")).toHaveCount(0);
-    await expect(page.locator("[data-testid^=status-]")).toHaveCount(7);
+    await expect(page.locator("[data-testid^=status-]")).toHaveCount(8);
     await expect(page.getByRole("link", { name: "shahryartariq57@gmail.com" })).toHaveAttribute(
       "href",
       "mailto:shahryartariq57@gmail.com",
@@ -358,7 +358,7 @@ test("serves SEO files and security headers", async ({ request }) => {
   expect(html).toContain('"@type":"Person"');
   expect(html).toContain('"@type":"ProfilePage"');
   expect(html).toContain('<meta name="robots" content="index, follow"');
-  expect(html).toMatch(/<meta name="description" content="[^"]*AI, blockchain and security[^"]*7 live projects\."/);
+  expect(html).toMatch(/<meta name="description" content="[^"]*AI, blockchain and security[^"]*8 live projects\."/);
   const description = html.match(/<meta name="description" content="([^"]*)"/)![1];
   expect(description.length).toBeLessThanOrEqual(160);
   // Structured data: a stable modified date, and the script can't be closed from inside.

@@ -156,7 +156,7 @@ export const chainData: BlockData[] = [
       { title: "Satscope", detail: "Bitcoin wallet checkup with one-click PSBT fixes.", href: "https://satscope.vercel.app" },
       { title: "Authforge", detail: "Production auth starter for Next.js.", href: "https://getauthforge.vercel.app" },
       { title: "Hashwire and Tensorwire", detail: "Crypto and AI news, grouped by network and lab.", href: "https://tensorwire.vercel.app" },
-      { title: "Playpace, Skycast, TidyText", detail: "Small tools people use every day.", href: "https://getplaypace.vercel.app" },
+      { title: "Playpace, Plainplay, Skycast, TidyText", detail: "Small tools people use every day.", href: "https://getplaypace.vercel.app" },
     ],
   },
   {
